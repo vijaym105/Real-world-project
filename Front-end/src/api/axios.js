@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'https://project-fitmate.onrender.com' || "http://localhost:3000/api",
+  baseURL: 'https://project-fitmate.onrender.com/api' || "http://localhost:3000/api",
 });
 
 // Attach JWT token to every request automatically
