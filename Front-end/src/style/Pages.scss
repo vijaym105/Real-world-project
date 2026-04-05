@@ -1,0 +1,680 @@
+// frontend/src/styles/pages.scss
+// Import this in App.scss: @import './pages';
+
+// ─── Sidebar (wider, with labels) ────────────────────────────────────────────
+.sidebar {
+  width: 100px !important;    // override the old 70px
+  align-items: flex-start;
+  padding: 24px 12px;
+
+  &__logo { margin-bottom: 28px; padding: 0 8px; }
+
+  &__nav {
+    align-items: flex-start;
+    width: 100%;
+    gap: 4px;
+  }
+
+  &__nav-btn {
+    width: 100%;
+    height: 44px;
+    border-radius: 10px;
+    justify-content: flex-start;
+    padding: 0 12px;
+    gap: 10px;
+    font-size: 14px;
+
+    &--active { background: #c6f135; color: #1a1a2e; font-weight: 600; }
+  }
+
+  &__nav-icon { font-size: 18px; flex-shrink: 0; }
+  &__nav-label { font-size: 13px; font-weight: 500; }
+
+  &__logout {
+    width: 100%;
+    border-radius: 10px !important;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    border: none !important;
+    margin-top: auto;
+    &:hover { color: #ff4d4f; background: rgba(255,77,79,0.1); }
+  }
+}
+
+// Fix dashboard grid to use 200px sidebar
+.dashboard {
+  grid-template-columns: 100px 1fr !important;
+}
+
+// Dashboard inner layout (right panel inside main)
+.dashboard-inner {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 0;
+  min-height: 100%;
+
+  &__main {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+// Right panel inside dashboard
+.right-panel {
+  border-left: 1px solid #e8ecf0;
+  padding: 0 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+// ─── Page base ───────────────────────────────────────────────────────────────
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 40px;
+}
+
+.page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.page__sub {
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
+}
+
+// ─── Stats Page ───────────────────────────────────────────────────────────────
+.stats-page {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 0;
+  }
+
+  &__card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center;
+    &:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+  }
+
+  &__card-emoji { font-size: 32px; margin-bottom: 12px; }
+
+  &__card-value {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  &__card-unit { font-size: 14px; font-weight: 400; opacity: 0.7; margin-left: 2px; }
+  &__card-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  &__card-hint  { font-size: 10px; color: #c6f135; margin-top: 6px; }
+
+  &__card-input {
+    font-size: 30px;
+    font-weight: 800;
+    width: 90px;
+    border: none;
+    border-bottom: 2px solid #c6f135;
+    outline: none;
+    background: transparent;
+    text-align: center;
+    color: inherit;
+  }
+
+  &__rings {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+  }
+
+  &__ring {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__ring-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #e8ecf0;
+    }
+
+    td {
+      padding: 12px 12px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #1a1a2e;
+    }
+
+    tr:last-child td { border-bottom: none; }
+  }
+
+  &__badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+
+    &--good { background: #f6ffed; color: #389e0d; }
+    &--low  { background: #fff7e6; color: #d48806; }
+  }
+}
+
+// ─── Schedule Page ────────────────────────────────────────────────────────────
+.schedule-page {
+  &__week {
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    &-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+  }
+
+  &__day {
+    background: #f0f4f8;
+    border-radius: 12px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 100px;
+    transition: background 0.2s;
+
+    &--today { background: #1a1a2e; }
+    &--today &__name { color: rgba(255,255,255,0.6); }
+  }
+
+  &__day-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__day-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+
+    &--today {
+      background: #c6f135;
+      color: #1a1a2e;
+    }
+  }
+
+  &__day--today &__day-num--today {
+    background: #c6f135;
+  }
+
+  &__day-workouts {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+    align-items: center;
+  }
+
+  &__rest {
+    font-size: 10px;
+    color: #bbb;
+    font-style: italic;
+  }
+
+  &__workout-pill {
+    font-size: 9px;
+    font-weight: 600;
+    color: #1a1a2e;
+    padding: 2px 6px;
+    border-radius: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  &__empty {
+    padding: 24px;
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+  }
+
+  &__today-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__today-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f0f4f8;
+    border-radius: 10px;
+  }
+
+  &__today-color {
+    width: 4px;
+    height: 40px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  &__today-info { display: flex; flex-direction: column; gap: 3px; }
+  &__today-name { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+  &__today-meta { font-size: 12px; color: #888; }
+
+  &__summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  &__summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: #f0f4f8;
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  &__summary-val { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+  &__summary-lbl { font-size: 11px; color: #888; text-align: center; }
+}
+
+// ─── Workouts Page ────────────────────────────────────────────────────────────
+.workouts-page {
+  &__form {
+    margin-bottom: 20px;
+    animation: slideUp 0.2s ease;
+  }
+
+  &__filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    background: #f0f4f8;
+    color: #888;
+    border: 1.5px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover { border-color: #c6f135; color: #1a1a2e; }
+    &--active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  }
+
+  &__filter-count {
+    background: rgba(255,255,255,0.2);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+
+  &__filter-btn--active &__filter-count { background: rgba(255,255,255,0.2); }
+  &__filter-btn:not(&__filter-btn--active) &__filter-count { background: #ddd; color: #555; }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 60px 24px;
+    color: #888;
+    font-size: 15px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: opacity 0.2s, transform 0.2s;
+
+    &:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    &--done { opacity: 0.6; }
+  }
+
+  &__item-color {
+    width: 4px;
+    height: 44px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  &__check {
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform 0.1s;
+    cursor: pointer;
+    background: none;
+    border: none;
+    &:hover { transform: scale(1.2); }
+  }
+
+  &__item-info { flex: 1; min-width: 0; }
+
+  &__item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  &__item-meta {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__item-tag {
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  &__delete {
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    background: none;
+    border: none;
+    flex-shrink: 0;
+  }
+
+  &__item:hover &__delete { opacity: 1; }
+}
+
+// ─── Profile Page ─────────────────────────────────────────────────────────────
+.profile-page {
+  &__card {
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  &__avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid #c6f135;
+    flex-shrink: 0;
+  }
+
+  &__info { flex: 1; }
+  &__form { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+  &__name  { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  &__email { font-size: 14px; color: #888; margin-bottom: 16px; }
+
+  &__details {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  &__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: #f0f4f8;
+    border-radius: 10px;
+    padding: 12px 16px;
+    min-width: 100px;
+  }
+
+  &__detail-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  &__detail-value { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+
+  &__stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: #f0f4f8;
+    border-radius: 12px;
+    padding: 20px 12px;
+    text-align: center;
+  }
+
+  &__stat-emoji { font-size: 24px; }
+  &__stat-val   { font-size: 26px; font-weight: 700; color: #1a1a2e; }
+  &__stat-lbl   { font-size: 11px; color: #888; }
+
+  &__account {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__account-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f4f8;
+    font-size: 14px;
+
+    &:last-child { border-bottom: none; }
+
+    span:first-child { color: #888; }
+    span:last-child  { font-weight: 500; color: #1a1a2e; }
+  }
+}
+
+// ─── Settings Page ────────────────────────────────────────────────────────────
+.settings-page {
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    gap: 20px;
+  }
+
+  &__row-label { font-size: 14px; font-weight: 500; color: #1a1a2e; margin-bottom: 2px; }
+  &__row-sub   { font-size: 12px; color: #888; }
+
+  &__divider { height: 1px; background: #f0f4f8; margin: 0 -18px; }
+
+  &__toggle {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    input { position: absolute; opacity: 0; width: 0; height: 0; }
+  }
+
+  &__toggle-track {
+    display: block;
+    width: 44px;
+    height: 24px;
+    background: #e0e0e0;
+    border-radius: 12px;
+    transition: background 0.2s;
+    position: relative;
+
+    input:checked + & { background: #c6f135; }
+  }
+
+  &__toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+
+    input:checked ~ & { transform: translateX(20px); }
+  }
+
+  &__select {
+    padding: 8px 12px;
+    border: 1.5px solid #e8ecf0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    color: #1a1a2e;
+    cursor: pointer;
+
+    &:focus { border-color: #c6f135; }
+  }
+
+  &__goal-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+    &:last-child { border-bottom: none; }
+  }
+
+  &__goal-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  &__goal-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  &__slider {
+    width: 100%;
+    accent-color: #c6f135;
+    height: 4px;
+    cursor: pointer;
+  }
+
+  &__danger { border: 1px solid #ffd4d4; }
+}
+
+// ─── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 1200px) {
+  .dashboard { grid-template-columns: 200px 1fr !important; }
+  .dashboard-inner { grid-template-columns: 1fr; }
+  .right-panel { display: none; }
+  .stats-page__grid { grid-template-columns: repeat(2, 1fr); }
+  .profile-page__stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .schedule-page__summary { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .sidebar { width: 70px !important; }
+  .sidebar__nav-label { display: none; }
+  .sidebar__logout span:last-child { display: none; }
+  .sidebar__nav-btn { justify-content: center; padding: 0; }
+  .sidebar__logout { justify-content: center; padding: 0; }
+  .dashboard { grid-template-columns: 70px 1fr !important; }
+  .stats-page__grid { grid-template-columns: repeat(2, 1fr); }
+  .schedule-page__week-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .dashboard { grid-template-columns: 1fr !important; }
+  .sidebar { display: none; }
+  .stats-page__grid { grid-template-columns: repeat(2, 1fr); }
+  .profile-page__stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
