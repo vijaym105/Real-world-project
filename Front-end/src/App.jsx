@@ -6,11 +6,11 @@ import Toast         from "./components/Toast.jsx";
 
 // Pages
 import DashboardPage from "./pages/DashboardPage.jsx";
-import StatsPage from "./Pages/StatsPage.jsx";
+import StatsPage from "./pages/StatsPage.jsx";
 import SchedulePage from "./pages/SchedulePage.jsx";
 import WorkoutsPage from "./pages/WorkoutsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
-import SettingsPage from "./Pages/SettingPage.jsx";
+import SettingsPage from "./pages/SettingPage.jsx";
 
 import "./style/App.scss";
 import './style/Pages.scss';
