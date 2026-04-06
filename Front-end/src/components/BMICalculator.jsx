@@ -15,29 +15,64 @@ function getNeedleAngle(bmi) {
 
 export default function BMICalculator() {
   const { state } = useApp();
-  const [unit,   setUnit]   = useState("metric");
+  const [unit, setUnit] = useState("metric");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
-  const [bmi,    setBmi]    = useState(null);
+  const [bmi, setBmi] = useState(null);
   const [result, setResult] = useState(null);
 
+  // ✅ Improved prefill (handles ft/in better)
   function prefillFromProfile() {
     const u = state.user;
-    if (u?.height) setHeight(u.height.replace(/[^0-9.]/g, ""));
-    if (u?.weight) setWeight(u.weight.replace(/[^0-9.]/g, ""));
+
+    if (u?.height) {
+      let cleaned = u.height.toString();
+
+      // convert 5'7" → 67 inches
+      const match = cleaned.match(/(\d+)\D+(\d+)/);
+      if (match) {
+        const feet = parseInt(match[1]);
+        const inches = parseInt(match[2]);
+        cleaned = feet * 12 + inches;
+      } else {
+        cleaned = cleaned.replace(/[^0-9.]/g, "");
+      }
+
+      setHeight(cleaned);
+    }
+
+    if (u?.weight) {
+      setWeight(u.weight.toString().replace(/[^0-9.]/g, ""));
+    }
   }
 
   function calculate() {
     const h = parseFloat(height);
     const w = parseFloat(weight);
-    if (!h || !w || h <= 0 || w <= 0) return;
+
+    if (!h || !w || h <= 0 || w <= 0) {
+      alert("Please enter valid height and weight");
+      return;
+    }
 
     let bmiVal;
+
     if (unit === "metric") {
       const hm = h / 100;
       bmiVal = w / (hm * hm);
     } else {
-      bmiVal = (703 * w) / (h * h);
+      let heightInInches;
+
+      // ✅ Smart detection
+      if (h < 10) {
+        // assume feet (e.g. 5.7)
+        heightInInches = h * 12;
+      } else {
+        // assume inches (e.g. 67)
+        heightInInches = h;
+      }
+
+      bmiVal = (703 * w) / (heightInInches * heightInInches);
     }
 
     bmiVal = parseFloat(bmiVal.toFixed(1));
@@ -55,10 +90,10 @@ export default function BMICalculator() {
   const needleAngle = bmi ? getNeedleAngle(bmi) : -90;
 
   const segments = [
-    { color: "#4fc3f7", label: "< 18.5"  },
+    { color: "#4fc3f7", label: "< 18.5" },
     { color: "#c6f135", label: "18.5–25" },
-    { color: "#ffa940", label: "25–30"   },
-    { color: "#ff4d4f", label: "> 30"    },
+    { color: "#ffa940", label: "25–30" },
+    { color: "#ff4d4f", label: "> 30" },
   ];
 
   return (
@@ -84,9 +119,9 @@ export default function BMICalculator() {
       {/* Gauge */}
       <div className="bmi-gauge">
         <svg viewBox="0 0 200 110" className="bmi-gauge__svg">
-          <path d="M 10,100 A 90,90 0 0,1 55,22"   fill="none" stroke="#4fc3f7" strokeWidth="14" strokeLinecap="round" />
-          <path d="M 55,22 A 90,90 0 0,1 100,10"   fill="none" stroke="#c6f135" strokeWidth="14" strokeLinecap="round" />
-          <path d="M 100,10 A 90,90 0 0,1 145,22"  fill="none" stroke="#ffa940" strokeWidth="14" strokeLinecap="round" />
+          <path d="M 10,100 A 90,90 0 0,1 55,22" fill="none" stroke="#4fc3f7" strokeWidth="14" strokeLinecap="round" />
+          <path d="M 55,22 A 90,90 0 0,1 100,10" fill="none" stroke="#c6f135" strokeWidth="14" strokeLinecap="round" />
+          <path d="M 100,10 A 90,90 0 0,1 145,22" fill="none" stroke="#ffa940" strokeWidth="14" strokeLinecap="round" />
           <path d="M 145,22 A 90,90 0 0,1 190,100" fill="none" stroke="#ff4d4f" strokeWidth="14" strokeLinecap="round" />
 
           <g
@@ -121,17 +156,18 @@ export default function BMICalculator() {
       <div className="bmi-inputs">
         <div className="bmi-input-group">
           <label className="bmi-label">
-            Height <small>({unit === "metric" ? "cm" : "inches"})</small>
+            Height <small>({unit === "metric" ? "cm" : "inches or feet (e.g. 5.7)"})</small>
           </label>
           <input
             className="bmi-input"
             type="number"
-            placeholder={unit === "metric" ? "e.g. 170" : "e.g. 67"}
+            placeholder={unit === "metric" ? "e.g. 170" : "e.g. 67 or 5.7"}
             value={height}
             min="1"
             onChange={(e) => setHeight(e.target.value)}
           />
         </div>
+
         <div className="bmi-input-group">
           <label className="bmi-label">
             Weight <small>({unit === "metric" ? "kg" : "lbs"})</small>
@@ -171,6 +207,7 @@ export default function BMICalculator() {
         <button className="btn btn--primary" onClick={calculate} style={{ flex: 1 }}>
           Calculate BMI
         </button>
+
         {bmi && (
           <button className="btn btn--outline" onClick={reset}>
             Reset
