@@ -1,49 +1,72 @@
-import React from "react";
-import {  createContext, useContext, useReducer, useEffect } from "react";
+// frontend/src/context/AppContext.jsx
+
+import { createContext, useContext, useReducer, useEffect } from "react";
 import {
   getTodayStats,
   getWorkouts,
   getAttendance,
   getMe,
-} from '../api/axios';
+} from "../api/axios.js";
 
-const initialState = {
-  user:          null,
-  token:         localStorage.getItem("token") || null,
-  stats:         { water: 0, calories: 0, bpm: 72, sleep: 0 },
-  workouts:      [],
-  attendedDates: [],
-  currentMonth:  new Date().getMonth(),
-  currentYear:   new Date().getFullYear(),
-  loading:       true,
-  activeNav:     0,
-  modal:         null,
-  toast:         null,
-};
+// ─── Load saved goals from localStorage ────────────────────────────────────
+function getSavedGoals() {
+  try {
+    const raw = localStorage.getItem("fittrack_goals");
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { water: 5, calories: 2000, sleep: 8, bpm: 80 };
+}
 
+function getInitialState() {
+  return {
+    user:          null,
+    token:         localStorage.getItem("token") || null,
+    stats:         { water: 0, calories: 0, bpm: 72, sleep: 0 },
+    goals:         getSavedGoals(),          // ← shared goals
+    workouts:      [],
+    attendedDates: [],
+    currentMonth:  new Date().getMonth(),
+    currentYear:   new Date().getFullYear(),
+    loading:       true,
+    activeNav:     0,
+    modal:         null,
+    toast:         null,
+  };
+}
+
+// ─── Reducer ────────────────────────────────────────────────────────────────
 function reducer(state, action) {
   switch (action.type) {
     case "SET_USER":       return { ...state, user: action.payload };
     case "SET_TOKEN":      return { ...state, token: action.payload };
-    case "LOGOUT":         return { ...initialState, token: null, loading: false };
+    case "LOGOUT":         return { ...getInitialState(), token: null, loading: false };
+
     case "SET_STATS":      return { ...state, stats: { ...state.stats, ...action.payload } };
+
+    // Save goals to both state AND localStorage so they persist on refresh
+    case "SET_GOALS": {
+      const newGoals = { ...state.goals, ...action.payload };
+      try { localStorage.setItem("fittrack_goals", JSON.stringify(newGoals)); } catch {}
+      return { ...state, goals: newGoals };
+    }
+
     case "SET_WORKOUTS":   return { ...state, workouts: action.payload };
     case "ADD_WORKOUT":    return { ...state, workouts: [action.payload, ...state.workouts] };
     case "UPDATE_WORKOUT": return {
       ...state,
-      workouts: state.workouts.map((w) =>
+      workouts: state.workouts.map(w =>
         w._id === action.payload._id ? action.payload : w
       ),
     };
     case "DELETE_WORKOUT": return {
       ...state,
-      workouts: state.workouts.filter((w) => w._id !== action.payload),
+      workouts: state.workouts.filter(w => w._id !== action.payload),
     };
     case "SET_ATTENDANCE": return { ...state, attendedDates: action.payload };
     case "TOGGLE_DATE":    return {
       ...state,
       attendedDates: state.attendedDates.includes(action.payload)
-        ? state.attendedDates.filter((d) => d !== action.payload)
+        ? state.attendedDates.filter(d => d !== action.payload)
         : [...state.attendedDates, action.payload],
     };
     case "SET_MONTH":      return {
@@ -61,12 +84,12 @@ function reducer(state, action) {
   }
 }
 
-const AppContext = createContext(null);
+// ─── Context ────────────────────────────────────────────────────────────────
+const AppContext = createContext(undefined);
 
 export function AppProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, undefined, getInitialState);
 
-  // Load all data once the token is available
   useEffect(() => {
     if (!state.token) {
       dispatch({ type: "SET_LOADING", payload: false });
@@ -76,7 +99,7 @@ export function AppProvider({ children }) {
     async function loadAll() {
       dispatch({ type: "SET_LOADING", payload: true });
       try {
-        const today = new Date();
+        const today    = new Date();
         const todayStr = today.toISOString().split("T")[0];
 
         const [userRes, statsRes, workoutsRes, attendanceRes] =
@@ -105,7 +128,6 @@ export function AppProvider({ children }) {
     loadAll();
   }, [state.token]);
 
-  // Auto-dismiss toast after 3s
   useEffect(() => {
     if (!state.toast) return;
     const t = setTimeout(() => dispatch({ type: "CLEAR_TOAST" }), 3000);
@@ -121,6 +143,7 @@ export function AppProvider({ children }) {
 
 export function useApp() {
   const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("useApp must be inside AppProvider");
+  if (ctx === undefined)
+    throw new Error("useApp must be inside <AppProvider>");
   return ctx;
 }

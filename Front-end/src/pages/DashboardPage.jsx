@@ -5,6 +5,7 @@ import WorkoutChart  from "../components/WorkoutChart.jsx";
 import WorkoutList, { AddWorkoutModal } from "../components/Workouts.jsx";
 import Calendar from '../components/Calender.jsx'
 import BMICalculator from "../components/BMICalculator.jsx";
+import DietSection from "../components/DietSection.jsx";
 
 function ProfileCard() {
   const { state } = useApp();
@@ -87,6 +88,7 @@ export default function DashboardPage() {
         <aside className="right-panel">
           <ProfileCard />
           <Calendar />
+          <DietSection />
         </aside>
       </div>
 

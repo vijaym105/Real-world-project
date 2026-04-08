@@ -605,7 +605,9 @@
     transition: transform 0.2s;
     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 
-    input:checked ~ & { transform: translateX(20px); }
+     input:checked + .toggle__toggle-thumb {
+     transform: translateX(20px);
+  }
   }
 
   &__select {
