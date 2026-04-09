@@ -1,4 +1,9 @@
-  .sidebar__hamburger {
+// Add this entire block to your frontend/src/styles/App.scss
+// or paste at the bottom of pages.scss
+
+// ─── Mobile Hamburger Button (3 dots) ─────────────────────────────────────────
+// Only visible on mobile (< 600px). Sits in top-left of the page.
+.sidebar__hamburger {
   display: none;                      // hidden on desktop
   position: fixed;
   top: 16px;

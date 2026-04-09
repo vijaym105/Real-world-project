@@ -45,7 +45,7 @@ export default function SideB() {
       {/* ── Desktop sidebar (always visible ≥ 600px) ─────────────────────── */}
       <aside className="sidebar">
         <div className="sidebar__logo">
-          <div className="sidebar__logo-icon">▽</div>
+          <div className="sidebar__logo-icon"><img src="finalLogo.png" alt="" width={95} /></div>
         </div>
 
         <nav className="sidebar__nav">
@@ -90,7 +90,7 @@ export default function SideB() {
 
         {/* Drawer header */}
         <div className="sidebar__drawer-header">
-          <div className="sidebar__logo-icon">▽</div>
+          <div className="sidebar__logo-icon"><img src="finalLogo.png" alt="" width={40}/></div>
           <span className="sidebar__drawer-brand">FitTrack</span>
           <button
             className="sidebar__drawer-close"

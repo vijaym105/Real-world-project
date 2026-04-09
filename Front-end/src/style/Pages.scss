@@ -3,10 +3,10 @@
 
 // ─── Sidebar (wider, with labels) ────────────────────────────────────────────
 .sidebar {
-  width: 100px !important;    // override the old 70px
+  width: 140px !important;    // override the old 70px
   align-items: flex-start;
   padding: 24px 12px;
-
+  
   &__logo { margin-bottom: 28px; padding: 0 8px; }
 
   &__nav {
@@ -72,6 +72,8 @@
   border-left: 1px solid #e8ecf0;
   padding: 0 0 0 20px;
   display: flex;
+  width: 320px;
+  
   flex-direction: column;
   gap: 18px;
 }
@@ -676,7 +678,7 @@
 
 @media (max-width: 600px) {
   .dashboard { grid-template-columns: 1fr !important; }
-  .sidebar { display: block; }
+  .sidebar { display: flex; }
   .stats-page__grid { grid-template-columns: repeat(2, 1fr); }
   .profile-page__stats-grid { grid-template-columns: repeat(2, 1fr); }
 
