@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "../context/AppContext.jsx";
+import ReminderSettings from "./ReminderSettings.jsx";
 
 
 export default function SettingsPage() {

@@ -3,7 +3,7 @@
 // Shows a toggle to enable/disable push notifications + reminder schedule
 
 import { useState } from "react";
-import { useNotifications } from "../hooks/useNotifications.js";
+import { useNotifications } from '../hooks/useNotification';
 
 const REMINDER_INFO = [
   { key: "water",    emoji: "💧", label: "Water Intake",    desc: "Remind me to drink water every 2 hours"  },
