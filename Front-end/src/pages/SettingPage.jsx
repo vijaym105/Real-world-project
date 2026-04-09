@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "../context/AppContext.jsx";
-import ReminderSettings from './ReminderSetting.jsx';
+
 
 export default function SettingsPage() {
   const { state, dispatch } = useApp();
