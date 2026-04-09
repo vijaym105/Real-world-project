@@ -14,7 +14,7 @@ import SettingsPage from "./pages/SettingPage.jsx";
 
 import "./style/App.scss";
 import './style/Pages.scss';
-
+import './style/mobile-view.scss'
 
 SettingsPage
 // Map nav index → page component

@@ -885,6 +885,6 @@ img      { display: block; }
 
 @media (max-width: 600px) {
   .dashboard { grid-template-columns: 1fr; }
-  .sidebar   { display: none; }
+  .sidebar   { display: block; }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
 }

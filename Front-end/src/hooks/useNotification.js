@@ -43,9 +43,10 @@ export function useNotifications() {
     setError(null);
 
     try {
+        
       // 1. Register the service worker
       const reg = await navigator.serviceWorker.register("/sw.js");
-      await navigator.serviceWorker.ready;
+      await navigator.serviceWorker.ready;  
 
       // 2. Ask user for permission
       const perm = await Notification.requestPermission();
@@ -57,7 +58,7 @@ export function useNotifications() {
 
       // 3. Get VAPID public key from backend
       const { data } = await api.get("/reminders/vapid-key");
-
+      console.log(data)
       // 4. Subscribe to push
       const subscription = await reg.pushManager.subscribe({
         userVisibleOnly:      true,

@@ -1,0 +1,267 @@
+  .sidebar__hamburger {
+  display: none;                      // hidden on desktop
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 900;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #1a1a2e;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s, transform 0.15s;
+
+  &:hover  { background: #2d2d4e; }
+  &:active { transform: scale(0.95); }
+}
+
+.sidebar__hamburger-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c6f135;
+  flex-shrink: 0;
+}
+
+// ─── Backdrop ─────────────────────────────────────────────────────────────────
+.sidebar__backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 998;
+  transition: background 0.3s ease;
+  backdrop-filter: blur(0px);
+
+  &--visible {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
+  }
+}
+
+// ─── Mobile Drawer ────────────────────────────────────────────────────────────
+.sidebar__drawer {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50%;                         // covers 50% of screen width
+  min-width: 260px;
+  height: 100dvh;                     // full device height
+  background: #1a1a2e;
+  z-index: 999;
+  flex-direction: column;
+  transform: translateX(-100%);       // starts off-screen left
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  padding: 0 0 24px;
+
+  &--open {
+    transform: translateX(0);         // slides in
+  }
+}
+
+// Drawer header row (logo + brand + close button)
+.sidebar__drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.sidebar__drawer-brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+  letter-spacing: -0.5px;
+}
+
+.sidebar__drawer-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+  }
+}
+
+// User info strip below header
+.sidebar__drawer-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.sidebar__drawer-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #c6f135;
+  flex-shrink: 0;
+}
+
+.sidebar__drawer-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__drawer-email {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Nav buttons inside drawer
+.sidebar__drawer-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 12px 0;
+}
+
+.sidebar__drawer-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.18s, color 0.18s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  &--active {
+    background: #c6f135;
+    color: #1a1a2e;
+    font-weight: 600;
+
+    &:hover { background: darken(#c6f135, 5%); }
+  }
+}
+
+.sidebar__drawer-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+// Logout at drawer bottom
+.sidebar__drawer-logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 24px);
+  margin: 12px 12px 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 77, 79, 0.25);
+  background: transparent;
+  color: rgba(255, 77, 79, 0.7);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(255, 77, 79, 0.1);
+    color: #ff4d4f;
+    border-color: #ff4d4f;
+  }
+}
+
+// ─── Mobile Responsive ────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  // Hide desktop sidebar
+  .sidebar { display: none !important; }
+
+  // Show hamburger button
+  .sidebar__hamburger {
+    display: flex !important;
+  }
+
+  // Show backdrop (hidden by default, shown when .--visible class applied via JS)
+  .sidebar__backdrop {
+    display: block;
+  }
+
+  // Show drawer (hidden off-screen by default)
+  .sidebar__drawer {
+    display: flex;
+  }
+
+  // Dashboard: single column, no sidebar column
+  .dashboard {
+    grid-template-columns: 1fr !important;
+  }
+
+  // Add top padding on mobile so content isn't behind the hamburger button
+  .dashboard__main {
+    padding-top: 72px !important;
+  }
+
+  // Page titles also need padding so hamburger doesn't overlap them
+  .page__header {
+    padding-top: 8px;
+  }
+}
+
+// ─── Logo icon (shared between desktop + drawer) ──────────────────────────────
+.sidebar__logo-icon {
+  width: 36px;
+  height: 36px;
+  background: #c6f135;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+  flex-shrink: 0;
+}

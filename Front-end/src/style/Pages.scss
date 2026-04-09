@@ -676,7 +676,10 @@
 
 @media (max-width: 600px) {
   .dashboard { grid-template-columns: 1fr !important; }
-  .sidebar { display: none; }
+  .sidebar { display: block; }
   .stats-page__grid { grid-template-columns: repeat(2, 1fr); }
   .profile-page__stats-grid { grid-template-columns: repeat(2, 1fr); }
+
 }
+
+
