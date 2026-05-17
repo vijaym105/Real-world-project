@@ -59,6 +59,7 @@ export function useNotifications() {
       // 3. Get VAPID public key from backend
       const { data } = await api.get("/reminders/vapid-key");
       console.log(data)
+      
       // 4. Subscribe to push
       const subscription = await reg.pushManager.subscribe({
         userVisibleOnly:      true,
