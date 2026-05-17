@@ -5,22 +5,21 @@ import axios from 'axios'
 import { useAuth } from '../hooks/useAuth'
 
 const Login = () => {
-    const [username, setuserName] = useState("")
+   const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+    const { handleLogin } = useAuth()
     const navigate = useNavigate()
-    const {loading, user, handleLogin} = useAuth()
 
-
-    async function HandleData(dets) {
-        dets.preventDefault()
-
-        await handleLogin(username, password)
-        navigate('/')
-    }
-    if(loading){
-        return (<main>
-            <h1>Loading...</h1>
-        </main>)
+    async function HandleData(e) {
+        e.preventDefault()
+        setError("")
+        try {
+            await handleLogin(username, password)
+            navigate('/')
+        } catch (err) {
+            setError("Invalid credentials. Please try again.")
+        }
     }
   return (
     <main>

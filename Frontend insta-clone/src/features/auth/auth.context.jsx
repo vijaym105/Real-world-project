@@ -1,47 +1,40 @@
+// src/features/auth/auth.context.jsx
 import { createContext, useState, useEffect } from "react";
-import { loginUser, registerUser } from "./services/api.auth.jsx";
+import { loginUser, registerUser, getMe } from "./services/api.auth.jsx";
 
 export const AuthContext = createContext()
 
-export  function AuthProvider({children}) {
+export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true) 
+
+    
+    useEffect(() => {
+        getMe()
+            .then(data => setUser(data.user))
+            .catch(() => setUser(null))
+            .finally(() => setLoading(false))
+    }, [])
 
     const handleLogin = async (email, password) => {
-        setLoading(true)
-        try{
-        const response = await loginUser(email , password)
-        setUser(response)
+        const response = await loginUser(email, password)
+        const me = await getMe()
+        setUser(me.user)
+    }
 
-    }
-    catch(err){
-        console.log(err)
-    }
-    finally{
-        setLoading(false)
-    }
-}
-
-    const handleRegister = async(username, email, password) =>{
-        setLoading(true)
-        try{
+    const handleRegister = async (username, email, password) => {
         const response = await registerUser(username, email, password)
-        setUser(response)
-    
-        }
-        catch(err){
-            console.log(err)
-        }
-        finally{
-            setLoading(false)
-        }
+        const me = await getMe()
+        setUser(me.user)
     }
 
+    const handleLogout = () => {
+        setUser(null)
+    }
 
-return (
-    <AuthContext.Provider value={{user, loading, handleLogin, handleRegister}}>
-        {children}
-    </AuthContext.Provider>
-)
+    return (
+        <AuthContext.Provider value={{ user, loading, handleLogin, handleRegister, handleLogout }}>
+            {children}
+        </AuthContext.Provider>
+    )
 }
-
