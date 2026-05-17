@@ -1,8 +1,15 @@
-import React from 'react'
+import { useAuth } from '../../auth/hooks/useAuth'
 import { useNavigate } from 'react-router'
 
 const Nav = () => {
     const navigate = useNavigate()
+    const { user, handleLogout } = useAuth()
+
+    const onLogout = async () => {
+        await handleLogout()
+        navigate('/login')
+    }
+
     return (
         <header className='nav'>
             <div className="nav__brand">
@@ -29,6 +36,38 @@ const Nav = () => {
                     </svg>
                     <span>Create</span>
                 </button>
+
+                {/* Avatar + dropdown */}
+                <div className="nav__profile">
+                    <img
+                        src={user?.profilePic}
+                        alt={user?.username}
+                        className="nav__avatar"
+                        onClick={() => document.getElementById('nav-dropdown').classList.toggle('open')}
+                    />
+                    <div className="nav__dropdown" id="nav-dropdown">
+                        <div className="nav__dropdown-user">
+                            <img src={user?.profilePic} alt="" />
+                            <div>
+                                <span className="nav__dropdown-name">{user?.username}</span>
+                                <span className="nav__dropdown-email">{user?.email}</span>
+                            </div>
+                        </div>
+                        <hr />
+                        <button className="nav__dropdown-item" onClick={() => { navigate('/login'); document.getElementById('nav-dropdown').classList.remove('open') }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+                            </svg>
+                            Switch Account
+                        </button>
+                        <button className="nav__dropdown-item nav__dropdown-item--danger" onClick={onLogout}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M5 22C4.44772 22 4 21.5523 4 21V3C4 2.44772 4.44772 2 5 2H19C19.5523 2 20 2.44772 20 3V6H18V4H6V20H18V18H20V21C20 21.5523 19.5523 22 19 22H5ZM18 16V13H11V11H18V8L23 12L18 16Z"/>
+                            </svg>
+                            Log Out
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
     )

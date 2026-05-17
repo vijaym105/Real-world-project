@@ -1,6 +1,5 @@
-// src/features/auth/auth.context.jsx
 import { createContext, useState, useEffect } from "react";
-import { loginUser, registerUser, getMe } from "./services/api.auth.jsx";
+import { loginUser, registerUser, getMe , logoutUser } from "./services/api.auth.jsx";
 
 export const AuthContext = createContext()
 
@@ -28,9 +27,15 @@ export function AuthProvider({ children }) {
         setUser(me.user)
     }
 
-    const handleLogout = () => {
-        setUser(null)
+    const handleLogout = async () => {
+    try {
+        await logoutUser()
+    } catch (err) {
+        console.log(err)
+    } finally {
+        setUser(null)  // clear user regardless
     }
+}
 
     return (
         <AuthContext.Provider value={{ user, loading, handleLogin, handleRegister, handleLogout }}>
