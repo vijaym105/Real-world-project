@@ -1,4 +1,3 @@
-// src/features/auth/pages/Login.jsx
 import { useState } from 'react'
 import '../style/form.scss'
 import { Link, useNavigate } from 'react-router'
