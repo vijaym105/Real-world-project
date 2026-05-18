@@ -1,50 +1,59 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import axios from 'axios'
 import { useAuth } from '../hooks/useAuth'
 
 const Register = () => {
-const [username, setuserName] = useState("")
-const [email, setEmail] = useState(null)
-const [password, setPassword] = useState("")
-const {handleRegister , loading} = useAuth()
-const navigate = useNavigate()
+    const [username, setUsername] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+    const { handleRegister } = useAuth()
+    const navigate = useNavigate()
 
-async function handleData(e){
-    e.preventDefault()
+    async function handleData(e) {
+        e.preventDefault()
+        setError("")
+        try {
+            await handleRegister(username, email, password)
+            navigate('/')
+        } catch (err) {
+            setError("Something went wrong. Please try again.")
+        }
+    }
 
-    await handleRegister(username, email, password)
-    console.log("user Registerd successfuly")
-    navigate('/')
-}
-if(loading){
-    return (<main>
-        <h1>Loading...</h1>
-    </main>)
-}
-  return (
-     <main>
-        <div className="form-cont">
-            <h1>Register</h1>
-            <form onSubmit={handleData}>
-                <input type="text"
-                onInput={(e)=> {setuserName(e.target.value)}}
-                name='username' placeholder='Enter your name'/>
-
-                <input type="text" 
-                onInput={(e)=> {setEmail(e.target.value)}}
-                name='email' placeholder='Enter your email'/>
-
-                <input type="password"
-                onInput={(e)=> {setPassword(e.target.value)}}
-                name='password' placeholder='Enter your password'/>
-                <button type='submit'>Submit</button>
-
-            </form>
-            <p>Already have an account? <Link to="/login">Login</Link></p>
-        </div>
-    </main>
-  )
+    return (
+        <main>
+            <div className="form-cont">
+                <h1>Register</h1>
+                {error && <p style={{ color: '#e8453c', fontSize: '0.85rem', textAlign: 'center' }}>{error}</p>}
+                <form onSubmit={handleData}>
+                    <input
+                        type="text"
+                        onChange={(e) => setUsername(e.target.value)}
+                        value={username}
+                        placeholder='Enter your username'
+                        required
+                    />
+                    <input
+                        type="text"
+                        onChange={(e) => setEmail(e.target.value)}
+                        value={email}
+                        placeholder='Enter your email'
+                        required
+                    />
+                    <input
+                        type="password"
+                        onChange={(e) => setPassword(e.target.value)}
+                        value={password}
+                        placeholder='Enter your password'
+                        required
+                    />
+                    <button type='submit'>Submit</button>
+                </form>
+                <p>Already have an account? <Link to="/login">Login</Link></p>
+            </div>
+        </main>
+    )
 }
 
 export default Register

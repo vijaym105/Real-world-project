@@ -4,15 +4,16 @@ export const PostContext = createContext()
 
 export const PostContProvider = ({ children }) => {
     const [loading, setloading] = useState(false)
+    const [actionLoading, setActionLoading] = useState(false)
     const [feed, setfeed] = useState([])
     const [post, setpost] = useState(null)
-
-
 
     return (
         <PostContext.Provider value={{
             loading,
             setloading,
+            actionLoading,
+            setActionLoading,
             feed,
             setfeed,
             post,
