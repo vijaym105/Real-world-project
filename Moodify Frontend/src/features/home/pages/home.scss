@@ -1,0 +1,476 @@
+// ── Tokens ────────────────────────────────────────────────
+$bg:          #0a0a0c;
+$surface:     #111115;
+$surface2:    #18181f;
+$border:      rgba(255,255,255,0.07);
+$accent:      #dd4200;
+$accent2:     #ff6b35;
+$text:        #f0f0f5;
+$muted:       #5a5a72;
+$sidebar-w:   280px;
+$radius:      14px;
+
+// ── Layout ────────────────────────────────────────────────
+.home {
+    display: flex;
+    min-height: 100vh;
+    background: $bg;
+    font-family: 'DM Sans', 'Sora', sans-serif;
+    color: $text;
+    padding-bottom: 88px; // player height
+
+    // ── Sidebar ──
+    &__sidebar {
+        width: $sidebar-w;
+        min-height: 100vh;
+        background: $surface;
+        border-right: 1px solid $border;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        overflow-y: auto;
+        z-index: 10;
+
+        &::-webkit-scrollbar { width: 4px; }
+        &::-webkit-scrollbar-track { background: transparent; }
+        &::-webkit-scrollbar-thumb { background: $border; border-radius: 4px; }
+    }
+
+    &__sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 20px 16px;
+        border-bottom: 1px solid $border;
+    }
+
+    &__logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    &__logo-icon {
+        font-size: 1.4rem;
+    }
+
+    &__logo-text {
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, $text 0%, $muted 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &__logout-btn {
+        background: none;
+        border: 1px solid $border;
+        border-radius: 8px;
+        color: $muted;
+        cursor: pointer;
+        padding: 6px 8px;
+        display: flex;
+        align-items: center;
+        transition: color 0.2s, border-color 0.2s;
+
+        &:hover {
+            color: $text;
+            border-color: rgba(255,255,255,0.2);
+        }
+    }
+
+    &__user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        border-bottom: 1px solid $border;
+    }
+
+    &__user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, $accent, $accent2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    &__user-info {
+        overflow: hidden;
+    }
+
+    &__user-name {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: $text;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__user-email {
+        font-size: 0.72rem;
+        color: $muted;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__sidebar-section {
+        padding: 16px 20px 0;
+    }
+
+    // ── Mood Badge ──
+    &__mood-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: var(--mood-bg);
+        border: 1px solid var(--mood-color);
+        border-radius: $radius;
+        animation: fadeIn 0.4s ease;
+    }
+
+    &__mood-emoji {
+        font-size: 1.6rem;
+    }
+
+    &__mood-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: $muted;
+        margin-bottom: 2px;
+    }
+
+    &__mood-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--mood-color);
+    }
+
+    // ── Song Queue ──
+    &__queue {
+        padding: 16px 20px;
+        flex: 1;
+    }
+
+    &__queue-title {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: $muted;
+        margin-bottom: 12px;
+    }
+
+    &__loading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: $muted;
+        font-size: 0.82rem;
+        padding: 8px 0;
+    }
+
+    &__spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid $border;
+        border-top-color: $accent;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+
+    &__song-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &__song-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
+        transition: background 0.15s;
+
+        &:hover {
+            background: $surface2;
+        }
+
+        &.active {
+            background: rgba($accent, 0.12);
+
+            .home__song-title {
+                color: $accent2;
+            }
+        }
+    }
+
+    &__song-item-num {
+        width: 20px;
+        font-size: 0.72rem;
+        color: $muted;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    &__now-playing-icon {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 14px;
+
+        span {
+            display: block;
+            width: 3px;
+            background: $accent;
+            border-radius: 2px;
+            animation: equalizer 0.8s ease-in-out infinite alternate;
+
+            &:nth-child(1) { height: 6px; animation-delay: 0s; }
+            &:nth-child(2) { height: 12px; animation-delay: 0.2s; }
+            &:nth-child(3) { height: 8px; animation-delay: 0.4s; }
+        }
+    }
+
+    &__song-thumb {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: $surface2;
+    }
+
+    &__song-meta {
+        overflow: hidden;
+    }
+
+    &__song-title {
+        font-size: 0.83rem;
+        font-weight: 500;
+        color: $text;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: color 0.15s;
+    }
+
+    &__song-mood {
+        font-size: 0.68rem;
+        color: $muted;
+        text-transform: capitalize;
+    }
+
+    // ── Main ──
+    &__main {
+        margin-left: $sidebar-w;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    &__hero {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 88px);
+        overflow: hidden;
+    }
+
+    &__hero-bg {
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 80% 60% at 60% 30%, rgba(221,66,0,0.08) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 50% at 20% 80%, rgba(167,139,250,0.05) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    &__hero-content {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 680px;
+        padding: 40px;
+    }
+
+    // ── Welcome ──
+    &__welcome {
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    &__headline {
+        font-size: clamp(2.8rem, 6vw, 5rem);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        margin-bottom: 1.2rem;
+        color: $text;
+
+        em {
+            font-style: italic;
+            background: linear-gradient(135deg, $accent 0%, $accent2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    }
+
+    &__subline {
+        font-size: 1.1rem;
+        color: $muted;
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+    }
+
+    &__result {
+        animation: fadeIn 0.4s ease;
+    }
+
+    &__result-text {
+        font-size: 1rem;
+        color: $muted;
+        margin-bottom: 1.5rem;
+
+        strong { color: $text; }
+    }
+
+    &__cta-row {
+        display: flex;
+        gap: 12px;
+    }
+
+    &__detect-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 28px;
+        background: $accent;
+        color: #fff;
+        border: none;
+        border-radius: 100px;
+        font-size: 1rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        letter-spacing: 0.01em;
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+
+        &--primary {
+            box-shadow: 0 8px 32px rgba($accent, 0.35);
+            font-size: 1.05rem;
+            padding: 16px 36px;
+        }
+
+        &:hover {
+            background: $accent2;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba($accent, 0.45);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+
+    // ── Camera ──
+    &__camera-wrap {
+        background: $surface;
+        border: 1px solid $border;
+        border-radius: 20px;
+        padding: 28px;
+        animation: fadeUp 0.4s ease;
+    }
+
+    &__camera-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+    }
+
+    &__close-btn {
+        background: $surface2;
+        border: 1px solid $border;
+        color: $muted;
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.15s, border-color 0.15s;
+
+        &:hover {
+            color: $text;
+            border-color: rgba(255,255,255,0.2);
+        }
+    }
+}
+
+// ── Keyframes ──────────────────────────────────────────────
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes equalizer {
+    from { transform: scaleY(0.4); }
+    to   { transform: scaleY(1); }
+}
+
+// ── Responsive ─────────────────────────────────────────────
+@media (max-width: 768px) {
+    .home {
+        flex-direction: column;
+        padding-bottom: 160px;
+
+        &__sidebar {
+            position: relative;
+            width: 100%;
+            min-height: unset;
+            border-right: none;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        &__main {
+            margin-left: 0;
+        }
+    }
+}

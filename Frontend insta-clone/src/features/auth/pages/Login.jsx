@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 
 const Login = () => {
-    const [username, setUsername] = useState("")
+    const [identifier, setIdentifier] = useState("") 
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const navigate = useNavigate()
@@ -14,7 +14,7 @@ const Login = () => {
         e.preventDefault()
         setError("")
         try {
-            await handleLogin(username, password)
+            await handleLogin(identifier, password)
             navigate('/')
         } catch (err) {
             setError("Invalid credentials. Please try again.")
@@ -25,21 +25,21 @@ const Login = () => {
         <main>
             <div className="form-cont">
                 <h1>Login</h1>
-                {error && <p style={{ color: '#e8453c', fontSize: '0.85rem' }}>{error}</p>}
+                {error && <p style={{ color: '#e8453c', fontSize: '0.85rem', textAlign: 'center' }}>{error}</p>}
                 <form onSubmit={HandleData}>
                     <input
                         type="text"
-                        onChange={(e) => setUsername(e.target.value)}
-                        value={username}
-                        name='username'
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        value={identifier}
                         placeholder='Enter your username or email'
+                        required
                     />
                     <input
                         type="password"
                         onChange={(e) => setPassword(e.target.value)}
                         value={password}
-                        name='password'
                         placeholder='Enter your password'
+                        required
                     />
                     <button type='submit'>Submit</button>
                 </form>

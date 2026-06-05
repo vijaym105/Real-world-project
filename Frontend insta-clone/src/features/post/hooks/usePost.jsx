@@ -4,13 +4,13 @@ import { PostContext } from '../Post.context';
 
 export const usePost = () => {
     const context = useContext(PostContext)
-    const { loading, setloading, feed, setfeed, post, setpost } = context
+    const { loading, setloading, actionLoading, setActionLoading, feed, setfeed, post, setpost } = context
 
     const getDetsHandler = async () => {
         try {
             setloading(true)
             const data = await getFeed()
-            setfeed(data.note)  // data.note is the array from backend
+            setfeed(data.note)
         } catch (error) {
             console.log(error)
         } finally {
@@ -22,7 +22,7 @@ export const usePost = () => {
         try {
             setloading(true)
             await createPost(imgFile, caption)
-            await getDetsHandler()  // re-fetch full feed after creating
+            await getDetsHandler()
         } catch (err) {
             console.log(err)
         } finally {
@@ -31,19 +31,31 @@ export const usePost = () => {
     }
 
     const likeHandler = async (postId) => {
+        // optimistic update - flip isLiked instantly, no loading screen
+        setfeed(prev => prev.map(p =>
+            p._id === postId ? { ...p, isLiked: true } : p
+        ))
         try {
             await likePost(postId)
-            await getDetsHandler()
         } catch (err) {
+            // revert on failure
+            setfeed(prev => prev.map(p =>
+                p._id === postId ? { ...p, isLiked: false } : p
+            ))
             console.log(err)
         }
     }
 
     const unLikeHandler = async (postId) => {
+        setfeed(prev => prev.map(p =>
+            p._id === postId ? { ...p, isLiked: false } : p
+        ))
         try {
             await unLikePost(postId)
-            await getDetsHandler()
         } catch (err) {
+            setfeed(prev => prev.map(p =>
+                p._id === postId ? { ...p, isLiked: true } : p
+            ))
             console.log(err)
         }
     }
@@ -54,6 +66,7 @@ export const usePost = () => {
 
     return {
         loading,
+        actionLoading,
         feed,
         post,
         setpost,
