@@ -11,7 +11,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://moodifyproj.vercel.app/login",
+      "https://moodifyproj.vercel.app",
     ],
     credentials: true,
   })
