@@ -6,7 +6,14 @@ const route = require('../routes/song.route')
 const app = express()
 
 app.use(express.json())
+
 app.use(cookieParser())
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+});
+
 app.use(
   cors({
     origin: [
