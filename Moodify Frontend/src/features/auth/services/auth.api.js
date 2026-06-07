@@ -1,25 +1,28 @@
 import axios from "axios"
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
-  withCredentials: true,
-});
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+    withCredentials: true
+})
 
-export default api;
+// On 401/403 just return { user: null } — don't throw, don't loop
+api.interceptors.response.use(
+    res => res,
+    err => {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+            return Promise.resolve({ data: { user: null } })
+        }
+        return Promise.reject(err)
+    }
+)
 
 export async function register({ email, password, username }) {
-    const response = await api.post("/api/auth/register", {
-        email, password, username
-    })
-
+    const response = await api.post("/api/auth/register", { email, password, username })
     return response.data
 }
 
 export async function login({ email, username, password }) {
-    const response = await api.post("/api/auth/login", {
-        email, username, password
-    })
-
+    const response = await api.post("/api/auth/login", { email, username, password })
     return response.data
 }
 
@@ -29,6 +32,6 @@ export async function getMe() {
 }
 
 export async function logout() {
-    const response = await api.get("/api/auth/logout")
+    const response = await api.post("/api/auth/logout")
     return response.data
 }
