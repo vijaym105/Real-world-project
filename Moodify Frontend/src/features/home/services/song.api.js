@@ -1,14 +1,13 @@
-import axios from "axios";
+import axios from "axios"
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: BASE_URL,
     withCredentials: true
 })
 
-
 export async function getSongs({ mood }) {
     const response = await api.get("/api/song?mood=" + mood)
-    console.log(response)
     return response.data
 }
