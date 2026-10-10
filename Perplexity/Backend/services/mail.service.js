@@ -20,13 +20,15 @@ transporter.verify()
         console.log(err);
     })
 
-export const sendEmail = async (to, subject, html) => {
+
+export const sendEmail = async (to, subject, html, extra = {}) => {
 
     const mailOptions = {
         from: process.env.GOOGLE_USER,
         to,
         subject,
-        html
+        html,
+        ...extra
     };
 
     const res = await transporter.sendMail(mailOptions);

@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useChat } from "../hooks/useChat";
-
+import { useChat, TEMP_CHAT_ID } from "../hooks/useChat";
+import EmailDraftCard from "../components/EmailDraftCard";
 
 const Icon = ({ children, className = "h-5 w-5" }) => (
   <svg
@@ -19,7 +19,6 @@ const Icon = ({ children, className = "h-5 w-5" }) => (
     {children}
   </svg>
 );
-
 
 const LayersIcon = (p) => (
   <Icon {...p}>
@@ -37,6 +36,14 @@ const SendIcon = (p) => (
   <Icon {...p}>
     <path d="M22 2 11 13" />
     <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
+  </Icon>
+);
+const TrashIcon = (p) => (
+  <Icon {...p}>
+    <path d="M3 6h18" />
+    <path d="M8 6V4h8v2" />
+    <path d="M6 6l1 14h10l1-14" />
+    <path d="M10 11v5M14 11v5" />
   </Icon>
 );
 const LogoutIcon = (p) => (
@@ -93,11 +100,11 @@ const Dashboard = ({ onLogout = () => {} }) => {
   const currentChatId = useSelector((state) => state.chat.currentChatId);
   const typing = useSelector((state) => state.chat.isLoading);
 
-  
+  // connect socket and load the chat list once on mount
   useEffect(() => {
     chat.initializeSocketConnection();
     chat.handleGetChats();
-   
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [draft, setDraft] = useState("");
@@ -107,7 +114,7 @@ const Dashboard = ({ onLogout = () => {} }) => {
   const active = chats[currentChatId];
   const activeMessages = active?.messages ?? [];
 
- 
+  // newest chats first
   const chatList = useMemo(
     () =>
       Object.values(chats).sort(
@@ -127,6 +134,15 @@ const Dashboard = ({ onLogout = () => {} }) => {
     el.style.height = "auto";
     el.style.height = Math.min(el.scrollHeight, 160) + "px";
   }, [draft]);
+
+  const deleteConversation = async (c) => {
+    if (!window.confirm(`Delete "${c.title}"? This can't be undone.`)) return;
+    try {
+      await chat.handleDeleteChat(c.id);
+    } catch (err) {
+      window.alert(err.response?.data?.message || "Could not delete this chat. Please try again.");
+    }
+  };
 
   const newConversation = () => {
     chat.handleNewChat();
@@ -188,24 +204,37 @@ const Dashboard = ({ onLogout = () => {} }) => {
           {chatList.map((c) => {
             const isActive = c.id === currentChatId;
             return (
-              <button
-                key={c.id}
-                onClick={() => chat.handleOpenChat(c.id, chats)}
-                className={`w-full rounded-xl border px-4 py-3.5 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
-                  isActive
-                    ? "border-violet-400/40 bg-white/[0.07]"
-                    : "border-transparent hover:bg-white/[0.04]"
-                }`}
-              >
-                <span className="block truncate text-[15px] font-semibold text-slate-100">
-                  {c.title}
-                </span>
-                <span className="mt-1 block truncate text-sm text-slate-400">
-                  {c.messages.length
-                    ? c.messages[c.messages.length - 1].content
-                    : shortDate(c.lastUpdated)}
-                </span>
-              </button>
+              <div key={c.id} className="group relative">
+                <button
+                  onClick={() => chat.handleOpenChat(c.id, chats)}
+                  className={`w-full rounded-xl border py-3.5 pl-4 pr-11 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
+                    isActive
+                      ? "border-violet-400/40 bg-white/[0.07]"
+                      : "border-transparent hover:bg-white/[0.04]"
+                  }`}
+                >
+                  <span className="block truncate text-[15px] font-semibold text-slate-100">
+                    {c.title}
+                  </span>
+                  <span className="mt-1 block truncate text-sm text-slate-400">
+                    {c.messages.length
+                      ? c.messages[c.messages.length - 1].content
+                      : shortDate(c.lastUpdated)}
+                  </span>
+                </button>
+                {c.id !== TEMP_CHAT_ID && (
+                  <button
+                    type="button"
+                    onClick={() => deleteConversation(c)}
+                    disabled={typing}
+                    aria-label={`Delete chat ${c.title}`}
+                    title="Delete chat"
+                    className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 opacity-0 transition hover:bg-red-500/15 hover:text-red-300 focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-violet-400 disabled:cursor-not-allowed disabled:opacity-0 group-hover:opacity-100 group-hover:disabled:opacity-40"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             );
           })}
         </nav>
@@ -287,6 +316,21 @@ const Dashboard = ({ onLogout = () => {} }) => {
                     <div className="rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.05] px-5 py-4 text-[17px] leading-relaxed text-slate-200 shadow-lg shadow-black/20 backdrop-blur-md">
                       <MessageBody text={m.content} />
                     </div>
+                    {m.emailDraft && m.id && (
+                      <EmailDraftCard
+                        key={`${m.id}-${m.emailDraft.status}`}
+                        draft={m.emailDraft}
+                        onSend={({ to, subject, body }) =>
+                          chat.handleSendEmail({
+                            chatId: currentChatId,
+                            messageId: m.id,
+                            to,
+                            subject,
+                            body,
+                          })
+                        }
+                      />
+                    )}
                     <span className="text-xs text-sky-300/80">{m.time}</span>
                   </div>
                 </div>

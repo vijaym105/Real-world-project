@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_URL } from "../../../app/config";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/api/chats",
+    baseURL: `${API_URL}/api/chats`,
     withCredentials: true,
 })
 
@@ -18,6 +19,11 @@ export const getChats = async () => {
 
 export const getMessages = async (chatId) => {
     const response = await api.get(`/retrive-msg/${chatId}`)
+    return response.data
+}
+
+export const sendEmailDraft = async ({ messageId, to, subject, body }) => {
+    const response = await api.post("/send-email", { messageId, to, subject, body })
     return response.data
 }
 

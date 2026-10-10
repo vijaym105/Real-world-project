@@ -1,5 +1,5 @@
 import { initializeSocketConnection } from "../service/chat.socket";
-import { sendMessage, getChats, getMessages, deleteChat } from "../service/chat.api";
+import { sendMessage, getChats, getMessages, deleteChat, sendEmailDraft } from "../service/chat.api";
 import {
     setChats,
     setCurrentChatId,
@@ -9,6 +9,7 @@ import {
     renameChat,
     removeChat,
     addNewMessage,
+    updateEmailDraft,
     addMessages,
 } from "../chat.slice";
 import { useDispatch } from "react-redux";
@@ -62,6 +63,8 @@ export const useChat = () => {
                 content: Aimsg.content,
                 role: Aimsg.role,
                 time: formatTime(Aimsg.createdAt),
+                id: Aimsg._id,
+                emailDraft: Aimsg.emailDraft,
             }))
             dispatch(setCurrentChatId(activeChatId))
         } catch (error) {
@@ -109,6 +112,8 @@ export const useChat = () => {
                         content: msg.content,
                         role: msg.role,
                         time: formatTime(msg.createdAt),
+                        id: msg._id,
+                        emailDraft: msg.emailDraft,
                     })),
                 }))
             } catch (error) {
@@ -124,12 +129,20 @@ export const useChat = () => {
         dispatch(setCurrentChatId(null))
     }
 
+    // Sends an AI-drafted email. Errors are thrown so the draft card can show them.
+    async function handleSendEmail({ chatId, messageId, to, subject, body }) {
+        const data = await sendEmailDraft({ messageId, to, subject, body })
+        dispatch(updateEmailDraft({ chatId, messageId, emailDraft: data.emailDraft }))
+        return data
+    }
+
     async function handleDeleteChat(chatId) {
         try {
             await deleteChat(chatId)
             dispatch(removeChat(chatId))
         } catch (error) {
             dispatch(setError(error.response?.data?.message || "Could not delete chat"))
+            throw error // let the Dashboard tell the user
         }
     }
 
@@ -139,6 +152,7 @@ export const useChat = () => {
         handleGetChats,
         handleOpenChat,
         handleNewChat,
+        handleSendEmail,
         handleDeleteChat,
     }
 

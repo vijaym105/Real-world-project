@@ -1,11 +1,12 @@
 import {Server} from 'socket.io';
+import { getFrontendUrl } from '../config/urls.js';
 
 let io;
 
 export function initSocket(httpServer){
      io = new Server(httpServer, {
         cors: {
-            origin: "http://localhost:5173",
+            origin: getFrontendUrl(),
             credentials: true,
         }
     })

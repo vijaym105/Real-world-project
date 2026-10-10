@@ -1,6 +1,42 @@
+import crypto from 'crypto';
 import userModel from '../models/user.model.js';
 import { sendEmail } from '../services/mail.service.js';
+import { verificationEmail, resetPasswordEmail } from '../services/email.templates.js';
+import { getFrontendUrl } from '../config/urls.js';
 import jwt from 'jsonwebtoken';
+
+const VERIFY_PURPOSE = 'verify-email';
+const RESET_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+// Cross-site cookies (frontend and backend on different domains) need
+// SameSite=None + Secure, which browsers only allow over HTTPS.
+const authCookieOptions = () => {
+    const isProd = process.env.NODE_ENV === 'production';
+    return {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    };
+};
+
+async function sendVerificationEmail(user) {
+    const token = jwt.sign(
+        { email: user.email, purpose: VERIFY_PURPOSE },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+    );
+
+    const link = `${getFrontendUrl()}/verify-email?token=${token}`;
+
+    await sendEmail(
+        user.email,
+        "Verify your Perplexity account",
+        verificationEmail({ username: user.username, link })
+    );
+}
 
 
 export const register = async (req, res) => {
@@ -24,348 +60,7 @@ export const register = async (req, res) => {
         password
     })
 
-    const emailVerToken = jwt.sign(
-        {
-            email: user.email
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: '15m'
-        }
-    );
-
-    await sendEmail(
-        email,
-        "Verify your Perplexity account",
-        `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify your Perplexity account</title>
-</head>
-
-<body style="
-    margin: 0;
-    padding: 0;
-    background-color: #f3f6f7;
-    font-family: Arial, Helvetica, sans-serif;
-">
-
-    <!-- Main wrapper -->
-    <table
-        width="100%"
-        cellpadding="0"
-        cellspacing="0"
-        border="0"
-        style="
-            background-color: #f3f6f7;
-            padding: 40px 15px;
-        "
-    >
-        <tr>
-            <td align="center">
-
-                <!-- Email container -->
-                <table
-                    width="600"
-                    cellpadding="0"
-                    cellspacing="0"
-                    border="0"
-                    style="
-                        max-width: 600px;
-                        width: 100%;
-                        background-color: #ffffff;
-                        border-radius: 18px;
-                        overflow: hidden;
-                    "
-                >
-
-                    <!-- ================= HEADER ================= -->
-
-                    <tr>
-                        <td
-                            align="center"
-                            style="
-                                background-color: #071013;
-                                padding: 40px 30px;
-                            "
-                        >
-
-                            <div style="
-                                font-size: 32px;
-                                font-weight: 700;
-                                color: #ffffff;
-                                letter-spacing: -1px;
-                            ">
-                                ✦ Perplexity
-                            </div>
-
-                            <div style="
-                                margin-top: 10px;
-                                font-size: 15px;
-                                color: #aeb8bd;
-                            ">
-                                Search Smarter. Think Deeper.
-                            </div>
-
-                        </td>
-                    </tr>
-
-
-                    <!-- ================= CONTENT ================= -->
-
-                    <tr>
-                        <td
-                            style="
-                                padding: 45px 40px;
-                            "
-                        >
-
-                            <!-- Greeting -->
-
-                            <h1 style="
-                                margin: 0 0 20px 0;
-                                color: #172b3a;
-                                font-size: 32px;
-                                line-height: 1.2;
-                                font-weight: 700;
-                            ">
-                                Hello ${username},
-                            </h1>
-
-
-                            <!-- Message -->
-
-                            <p style="
-                                margin: 0 0 20px 0;
-                                color: #34495e;
-                                font-size: 17px;
-                                line-height: 1.7;
-                            ">
-                                Thank you for registering with
-                                <strong style="color: #172b3a;">
-                                    Perplexity
-                                </strong>.
-                                We're excited to have you on board.
-                            </p>
-
-
-                            <p style="
-                                margin: 0 0 30px 0;
-                                color: #34495e;
-                                font-size: 17px;
-                                line-height: 1.7;
-                            ">
-                                Please verify your email address to activate
-                                your account and start exploring a smarter
-                                way to search.
-                            </p>
-
-
-                            <!-- ================= BUTTON ================= -->
-
-                            <table
-                                width="100%"
-                                cellpadding="0"
-                                cellspacing="0"
-                                border="0"
-                            >
-                                <tr>
-                                    <td align="center">
-
-                                        <a
-                                            href="http://localhost:3000/api/auth/verify-email?token=${emailVerToken}"
-                                            style="
-                                                display: inline-block;
-                                                background-color: #071013;
-                                                color: #ffffff;
-                                                text-decoration: none;
-                                                font-size: 16px;
-                                                font-weight: 700;
-                                                padding: 17px 42px;
-                                                border-radius: 10px;
-                                            "
-                                        >
-                                            Verify Email &nbsp; →
-                                        </a>
-
-                                    </td>
-                                </tr>
-                            </table>
-
-
-                            <!-- ================= EXPIRY BOX ================= -->
-
-                            <table
-                                width="100%"
-                                cellpadding="0"
-                                cellspacing="0"
-                                border="0"
-                                style="
-                                    margin-top: 35px;
-                                    background-color: #effaf5;
-                                    border: 1px solid #ccefe0;
-                                    border-radius: 12px;
-                                "
-                            >
-                                <tr>
-
-                                    <td
-                                        width="65"
-                                        align="center"
-                                        valign="middle"
-                                        style="
-                                            padding: 20px 5px 20px 15px;
-                                        "
-                                    >
-
-                                        <div style="
-                                            width: 40px;
-                                            height: 40px;
-                                            line-height: 40px;
-                                            background-color: #d9f6e8;
-                                            border-radius: 50%;
-                                            font-size: 20px;
-                                        ">
-                                            ✓
-                                        </div>
-
-                                    </td>
-
-                                    <td
-                                        valign="middle"
-                                        style="
-                                            padding: 20px 15px 20px 5px;
-                                        "
-                                    >
-
-                                        <div style="
-                                            color: #176b4c;
-                                            font-size: 16px;
-                                            font-weight: 700;
-                                            margin-bottom: 5px;
-                                        ">
-                                            This link will expire in 15 minutes.
-                                        </div>
-
-                                        <div style="
-                                            color: #527166;
-                                            font-size: 14px;
-                                            line-height: 1.5;
-                                        ">
-                                            For your security, please complete
-                                            the verification within this time.
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-                            </table>
-
-
-                            <!-- ================= SECURITY MESSAGE ================= -->
-
-                            <div style="
-                                margin-top: 35px;
-                                padding-top: 25px;
-                                border-top: 1px solid #e5e7eb;
-                            ">
-
-                                <p style="
-                                    margin: 0;
-                                    color: #667085;
-                                    font-size: 14px;
-                                    line-height: 1.7;
-                                ">
-                                    If you didn't create a Perplexity account,
-                                    you can safely ignore this email.
-                                    Your account won't be activated.
-                                </p>
-
-                            </div>
-
-
-                            <!-- ================= SIGNATURE ================= -->
-
-                            <div style="
-                                margin-top: 28px;
-                            ">
-
-                                <p style="
-                                    margin: 0 0 5px 0;
-                                    color: #52606d;
-                                    font-size: 15px;
-                                ">
-                                    Best regards,
-                                </p>
-
-                                <p style="
-                                    margin: 0;
-                                    color: #172b3a;
-                                    font-size: 16px;
-                                    font-weight: 700;
-                                ">
-                                    The Perplexity Team
-                                </p>
-
-                            </div>
-
-                        </td>
-                    </tr>
-
-
-                    <!-- ================= FOOTER ================= -->
-
-                    <tr>
-                        <td
-                            align="center"
-                            style="
-                                background-color: #f8fafb;
-                                border-top: 1px solid #e5e7eb;
-                                padding: 28px 30px;
-                            "
-                        >
-
-                            <p style="
-                                margin: 0 0 15px 0;
-                                color: #667085;
-                                font-size: 14px;
-                            ">
-                                Curious minds build a better tomorrow.
-                            </p>
-
-                            <p style="
-                                margin: 0;
-                                color: #8a949e;
-                                font-size: 13px;
-                            ">
-                                For help, contact us at
-                                <a
-                                    href="mailto:vjmalusare10@gmail.com"
-                                    style="
-                                        color: #1677ff;
-                                        text-decoration: none;
-                                    "
-                                >
-                                    vjmalusare10@gmail.com
-                                </a>
-                            </p>
-
-                        </td>
-                    </tr>
-
-                </table>
-
-            </td>
-        </tr>
-    </table>
-
-</body>
-</html>
-`
-    );
+    await sendVerificationEmail(user);
 
     res.status(201).json({
         message: 'User created successfully',
@@ -415,7 +110,7 @@ export const login = async (req, res) => {
         email: user.email
     }, process.env.JWT_SECRET, { expiresIn: '7d' })
 
-    res.cookie('token', token)
+    res.cookie('token', token, authCookieOptions())
 
     res.status(200).json({
         message: 'User logged in successfully',
@@ -446,36 +141,143 @@ export const getMe = async (req, res) => {
         user
     })
 }
+
+/**
+ * @route POST /api/auth/verify-email
+ * @body { token }
+ * Called by the frontend /verify-email page with the token from the email link.
+ */
 export const verifyEmail = async (req, res) => {
-    const { token } = req.query;
+    const { token } = req.body;
+
     try {
-        let decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+
+        if (decoded.purpose !== VERIFY_PURPOSE) {
+            throw new Error('Wrong token purpose')
+        }
 
         const user = await userModel.findOne({ email: decoded.email })
 
         if (!user) {
             return res.status(400).json({
-                message: 'Invalid token',
+                message: 'Invalid verification link',
                 success: false
+            })
+        }
+
+        if (user.verified) {
+            return res.status(200).json({
+                message: 'Your email is already verified',
+                success: true
             })
         }
 
         user.verified = true;
         await user.save();
 
-        const html = `
-        <h1>Email Verified</h1>
-        <p>Your email has been successfully verified. You can now log in to your account.</p>
-        <a href=" http://localhost:5173/login">Login</a>
-        `;
-
-        return res.status(200).send(html);
+        return res.status(200).json({
+            message: 'Email verified successfully',
+            success: true
+        })
 
     } catch (err) {
         return res.status(400).json({
-            message: 'Invalid token',
+            message: err.name === 'TokenExpiredError'
+                ? 'This verification link has expired'
+                : 'Invalid verification link',
             success: false
         })
     }
 }
 
+/**
+ * @route POST /api/auth/resend-verification
+ * @body { email }
+ * Always answers the same way so it can't be used to find out which emails are registered.
+ */
+export const resendVerification = async (req, res) => {
+    const { email } = req.body;
+
+    const user = await userModel.findOne({ email });
+
+    if (user && !user.verified) {
+        try {
+            await sendVerificationEmail(user);
+        } catch (err) {
+            console.error("Could not send verification email:", err.message);
+        }
+    }
+
+    res.status(200).json({
+        message: 'If that account exists and is not verified yet, we have sent a new verification link.',
+        success: true
+    })
+}
+
+/**
+ * @route POST /api/auth/forgot-password
+ * @body { email }
+ * Always answers the same way so it can't be used to find out which emails are registered.
+ */
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    const user = await userModel.findOne({ email });
+
+    if (user) {
+        const rawToken = crypto.randomBytes(32).toString('hex');
+
+        user.resetPasswordToken = hashToken(rawToken);
+        user.resetPasswordExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+        await user.save();
+
+        const link = `${getFrontendUrl()}/reset-password?token=${rawToken}`;
+
+        try {
+            await sendEmail(
+                user.email,
+                "Reset your Perplexity password",
+                resetPasswordEmail({ username: user.username, link })
+            );
+        } catch (err) {
+            console.error("Could not send reset email:", err.message);
+        }
+    }
+
+    res.status(200).json({
+        message: 'If an account exists for that email, we have sent a password reset link.',
+        success: true
+    })
+}
+
+/**
+ * @route POST /api/auth/reset-password
+ * @body { token, password }
+ */
+export const resetPassword = async (req, res) => {
+    const { token, password } = req.body;
+
+    const user = await userModel.findOne({
+        resetPasswordToken: hashToken(token),
+        resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+        return res.status(400).json({
+            message: 'This reset link is invalid or has expired',
+            success: false
+        })
+    }
+
+    user.password = password; // hashed by the model's pre-save hook
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    user.verified = true; // they just proved they own this inbox
+    await user.save();
+
+    res.status(200).json({
+        message: 'Password reset successfully. You can now sign in.',
+        success: true
+    })
+}

@@ -94,7 +94,7 @@ const Login = () => {
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <label htmlFor="login-password" className="block text-sm font-medium text-slate-200">Password</label>
-                  <button type="button" className="text-xs font-medium text-cyan-300 transition hover:text-cyan-200">Forgot password?</button>
+                  <Link to="/forgot-password" className="text-xs font-medium text-cyan-300 transition hover:text-cyan-200">Forgot password?</Link>
                 </div>
                 <input id="login-password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" placeholder="Enter your password" className={inputClass} />
               </div>

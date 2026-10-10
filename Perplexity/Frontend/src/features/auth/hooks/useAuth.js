@@ -1,5 +1,13 @@
 import { useDispatch } from "react-redux";
-import { register, login, getMe } from "../services/auth.api";
+import {
+    register,
+    login,
+    getMe,
+    verifyEmail,
+    resendVerification,
+    forgotPassword,
+    resetPassword,
+} from "../services/auth.api";
 import { setUser, setLoading, setError } from "../services/auth.slice";
 
 export function useAuth() {
@@ -56,10 +64,22 @@ export function useAuth() {
         }
     }
 
+    // The handlers below are used by the verify-email / forgot-password / reset-password
+    // pages. They keep their own loading/error state, so they just return the API
+    // response and let errors bubble up to the page.
+    const handleVerifyEmail = (token) => verifyEmail(token)
+    const handleResendVerification = (email) => resendVerification(email)
+    const handleForgotPassword = (email) => forgotPassword(email)
+    const handleResetPassword = ({ token, password }) => resetPassword({ token, password })
+
     return {
         handleRegister,
         handleLogin,
-        handleGetMe
+        handleGetMe,
+        handleVerifyEmail,
+        handleResendVerification,
+        handleForgotPassword,
+        handleResetPassword
     }
 
 }

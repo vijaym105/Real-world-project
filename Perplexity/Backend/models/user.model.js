@@ -25,6 +25,15 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        // sha256 hash of the password-reset token (the raw token only lives in the email link)
+        resetPasswordToken: {
+            type: String,
+            select: false,
+        },
+        resetPasswordExpires: {
+            type: Date,
+            select: false,
+        },
     },
     { timestamps: true }
 );

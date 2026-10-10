@@ -4,7 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 // chats = {
 //     [chatId]: {
 //         id, title, lastUpdated,
-//         messages: [ { role: "user" | "ai", content, time } ],
+//         messages: [ { role: "user" | "ai", content, time, id?, emailDraft? } ],
 //         loaded: boolean   // true once the messages were fetched from the server
 //     }
 // }
@@ -42,11 +42,17 @@ const chatSlice = createSlice({
             if (state.currentChatId === action.payload) state.currentChatId = null
         },
         addNewMessage: (state, action) => {
-            const { chatId, content, role, time } = action.payload
+            const { chatId, content, role, time, id, emailDraft } = action.payload
             const chat = state.chats[ chatId ]
             if (!chat) return
-            chat.messages.push({ content, role, time })
+            chat.messages.push({ content, role, time, id, emailDraft })
             chat.lastUpdated = new Date().toISOString()
+        },
+        // after an AI-drafted email is sent, store its final state on the message
+        updateEmailDraft: (state, action) => {
+            const { chatId, messageId, emailDraft } = action.payload
+            const message = state.chats[ chatId ]?.messages.find((m) => m.id === messageId)
+            if (message) message.emailDraft = emailDraft
         },
         addMessages: (state, action) => {
             const { chatId, messages } = action.payload
@@ -79,6 +85,7 @@ export const {
     renameChat,
     removeChat,
     addNewMessage,
+    updateEmailDraft,
     addMessages,
 } = chatSlice.actions
 export default chatSlice.reducer

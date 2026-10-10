@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {userAuth} from "../middleware/auth.middleware.js";
-import { deleteChats, retriveChats, retriveMessages, sendMessage } from "../controller/message.contoller.js";
+import { deleteChats, retriveChats, retriveMessages, sendMessage, sendEmailDraft } from "../controller/message.contoller.js";
+import { validateSendEmailDraft } from "../validator/validate.js";
 
 const chatRouter = Router();
 
@@ -9,6 +10,12 @@ const chatRouter = Router();
  //* @access Private  
 
 chatRouter.post('/send-message', userAuth, sendMessage);
+
+/** @route POST api/chats/send-email
+ * @desc Send an email the AI drafted, after the user reviewed it
+ * @access Private
+ */
+chatRouter.post('/send-email', userAuth, validateSendEmailDraft, sendEmailDraft);
 
 chatRouter.get('/retrive-chats', userAuth, retriveChats);
 
