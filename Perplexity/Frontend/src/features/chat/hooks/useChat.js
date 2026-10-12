@@ -33,7 +33,7 @@ export const useChat = () => {
         dispatch(setError(null))
         dispatch(setLoading(true))
 
-        // show the user's message straight away
+
         if (!chatId) {
             activeChatId = TEMP_CHAT_ID
             dispatch(createNewChat({ chatId: TEMP_CHAT_ID, title: "New conversation" }))
@@ -129,7 +129,7 @@ export const useChat = () => {
         dispatch(setCurrentChatId(null))
     }
 
-    // Sends an AI-drafted email. Errors are thrown so the draft card can show them.
+
     async function handleSendEmail({ chatId, messageId, to, subject, body }) {
         const data = await sendEmailDraft({ messageId, to, subject, body })
         dispatch(updateEmailDraft({ chatId, messageId, emailDraft: data.emailDraft }))
@@ -142,7 +142,7 @@ export const useChat = () => {
             dispatch(removeChat(chatId))
         } catch (error) {
             dispatch(setError(error.response?.data?.message || "Could not delete chat"))
-            throw error // let the Dashboard tell the user
+            throw error 
         }
     }
 

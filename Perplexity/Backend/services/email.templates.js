@@ -34,7 +34,7 @@ function layout({ title, username, paragraphs, buttonLabel, link, expiryTitle, e
                     <!-- HEADER -->
                     <tr>
                         <td align="center" style="background-color: #071013; padding: 40px 30px;">
-                            <div style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: -1px;">✦ Perplexity</div>
+                            <div style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: -1px;">✦ Nexora</div>
                             <div style="margin-top: 10px; font-size: 15px; color: #aeb8bd;">Search Smarter. Think Deeper.</div>
                         </td>
                     </tr>
@@ -83,7 +83,7 @@ function layout({ title, username, paragraphs, buttonLabel, link, expiryTitle, e
                             <!-- SIGNATURE -->
                             <div style="margin-top: 28px;">
                                 <p style="margin: 0 0 5px 0; color: #52606d; font-size: 15px;">Best regards,</p>
-                                <p style="margin: 0; color: #172b3a; font-size: 16px; font-weight: 700;">The Perplexity Team</p>
+                                <p style="margin: 0; color: #172b3a; font-size: 16px; font-weight: 700;">The Nexora Team</p>
                             </div>
 
                         </td>
@@ -127,7 +127,7 @@ export function userComposedEmail({ senderName, senderEmail, body }) {
         ${safeBody}
         <hr style="margin: 32px 0 16px 0; border: none; border-top: 1px solid #e5e7eb;">
         <p style="margin: 0; color: #8a949e; font-size: 12px; line-height: 1.5;">
-            Sent via Perplexity on behalf of ${escapeHtml(senderName)} (${escapeHtml(senderEmail)}).
+            Sent via Nexora on behalf of ${escapeHtml(senderName)} (${escapeHtml(senderEmail)}).
             Reply to this email to respond to them directly.
         </p>
     </div>
@@ -135,33 +135,33 @@ export function userComposedEmail({ senderName, senderEmail, body }) {
 </html>
 `;
 
-    const text = `${body}\n\n--\nSent via Perplexity on behalf of ${senderName} (${senderEmail}). Reply to this email to respond to them directly.`;
+    const text = `${body}\n\n--\nSent via Nexora on behalf of ${senderName} (${senderEmail}). Reply to this email to respond to them directly.`;
 
     return { html, text };
 }
 
 export function verificationEmail({ username, link }) {
     return layout({
-        title: "Verify your Perplexity account",
+        title: "Verify your Nexora account",
         username,
         paragraphs: [
-            `Thank you for registering with <strong style="color: #172b3a;">Perplexity</strong>. We're excited to have you on board.`,
+            `Thank you for registering with <strong style="color: #172b3a;">Nexora</strong>. We're excited to have you on board.`,
             `Please verify your email address to activate your account and start exploring a smarter way to search.`,
         ],
         buttonLabel: "Verify Email",
         link,
         expiryTitle: "This link will expire in 15 minutes.",
         expiryText: "For your security, please complete the verification within this time.",
-        ignoreNote: "If you didn't create a Perplexity account, you can safely ignore this email. Your account won't be activated.",
+        ignoreNote: "If you didn't create a Nexora account, you can safely ignore this email. Your account won't be activated.",
     });
 }
 
 export function resetPasswordEmail({ username, link }) {
     return layout({
-        title: "Reset your Perplexity password",
+        title: "Reset your Nexora password",
         username,
         paragraphs: [
-            `We received a request to reset the password for your <strong style="color: #172b3a;">Perplexity</strong> account.`,
+            `We received a request to reset the password for your <strong style="color: #172b3a;">Nexora</strong> account.`,
             `Click the button below to choose a new password.`,
         ],
         buttonLabel: "Reset Password",

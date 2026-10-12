@@ -85,7 +85,7 @@ function MessageBody({ text }) {
 }
 
 /* ---------- Dashboard ---------- */
-const Dashboard = ({ onLogout = () => {} }) => {
+const Dashboard = ({ onLogout = () => { } }) => {
   const chat = useChat();
   const authUser = useSelector((state) => state.auth.user);
 
@@ -207,11 +207,10 @@ const Dashboard = ({ onLogout = () => {} }) => {
               <div key={c.id} className="group relative">
                 <button
                   onClick={() => chat.handleOpenChat(c.id, chats)}
-                  className={`w-full rounded-xl border py-3.5 pl-4 pr-11 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
-                    isActive
-                      ? "border-violet-400/40 bg-white/[0.07]"
-                      : "border-transparent hover:bg-white/[0.04]"
-                  }`}
+                  className={`w-full rounded-xl border py-3.5 pl-4 pr-11 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${isActive
+                    ? "border-violet-400/40 bg-white/[0.07]"
+                    : "border-transparent hover:bg-white/[0.04]"
+                    }`}
                 >
                   <span className="block truncate text-[15px] font-semibold text-slate-100">
                     {c.title}
