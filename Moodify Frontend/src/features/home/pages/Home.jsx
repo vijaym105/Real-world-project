@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import FaceExpression from '../../expression/Component/FaceExpression'
 import Player from '../component/Player'
 import { useSong } from '../hooks/useSong'
-import { useAuth } from '../../auth/hooks/useAuth'
 import './home.scss'
 
 const MOOD_META = {
@@ -14,7 +13,7 @@ const MOOD_META = {
 
 const Home = () => {
     const { handleGetSongs, loading, songs, song, setSong } = useSong()
-    const { user, handleLogout } = useAuth()
+
     const [detectedMood, setDetectedMood] = useState(null)
     const [showCamera, setShowCamera] = useState(false)
 
@@ -44,17 +43,7 @@ const Home = () => {
                     </button>
                 </div>
 
-                {user && (
-                    <div className="home__user">
-                        <div className="home__user-avatar">
-                            {user.username?.[0]?.toUpperCase() || 'U'}
-                        </div>
-                        <div className="home__user-info">
-                            <p className="home__user-name">{user.username}</p>
-                            <p className="home__user-email">{user.email}</p>
-                        </div>
-                    </div>
-                )}
+
 
                 <div className="home__sidebar-section">
                     {moodMeta && (
