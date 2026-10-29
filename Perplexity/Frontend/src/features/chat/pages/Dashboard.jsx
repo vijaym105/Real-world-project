@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useChat, TEMP_CHAT_ID } from "../hooks/useChat";
 import EmailDraftCard from "../components/EmailDraftCard";
+import EmailDraftsPanel from "../components/EmailDraftsPanel";
 
 const Icon = ({ children, className = "h-5 w-5" }) => (
   <svg
@@ -46,6 +47,12 @@ const TrashIcon = (p) => (
     <path d="M10 11v5M14 11v5" />
   </Icon>
 );
+const MailIcon = (p) => (
+  <Icon {...p}>
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="m3 7 9 6 9-6" />
+  </Icon>
+);
 const LogoutIcon = (p) => (
   <Icon {...p}>
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -85,7 +92,7 @@ function MessageBody({ text }) {
 }
 
 /* ---------- Dashboard ---------- */
-const Dashboard = ({ onLogout = () => { } }) => {
+const Dashboard = ({ onLogout = () => {} }) => {
   const chat = useChat();
   const authUser = useSelector((state) => state.auth.user);
 
@@ -99,11 +106,17 @@ const Dashboard = ({ onLogout = () => { } }) => {
   const chats = useSelector((state) => state.chat.chats);
   const currentChatId = useSelector((state) => state.chat.currentChatId);
   const typing = useSelector((state) => state.chat.isLoading);
+  const emailDrafts = useSelector((state) => state.chat.emailDrafts);
+  const unsentEmails = emailDrafts.items.filter((d) => d.emailDraft.status !== "sent").length;
+
+  // "chat" = the conversation, "emails" = the Email drafts section
+  const [view, setView] = useState("chat");
 
   // connect socket and load the chat list once on mount
   useEffect(() => {
     chat.initializeSocketConnection();
     chat.handleGetChats();
+    chat.handleGetEmailDrafts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -144,7 +157,13 @@ const Dashboard = ({ onLogout = () => { } }) => {
     }
   };
 
+  const openChatFromAnywhere = (chatId) => {
+    setView("chat");
+    chat.handleOpenChat(chatId, chats);
+  };
+
   const newConversation = () => {
+    setView("chat");
     chat.handleNewChat();
     setDraft("");
     taRef.current?.focus();
@@ -194,6 +213,28 @@ const Dashboard = ({ onLogout = () => { } }) => {
             <PlusIcon className="h-5 w-5 text-slate-300" />
             New conversation
           </button>
+
+          <button
+            type="button"
+            onClick={() => setView("emails")}
+            aria-current={view === "emails" ? "page" : undefined}
+            className={`mt-2 flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
+              view === "emails"
+                ? "border-violet-400/40 bg-white/[0.07] text-white"
+                : "border-white/10 bg-white/[0.03] text-slate-200 hover:border-cyan-400/30 hover:bg-cyan-400/[0.06]"
+            }`}
+          >
+            <MailIcon className="h-5 w-5 text-cyan-300" />
+            <span className="flex-1">Email drafts</span>
+            {unsentEmails > 0 && (
+              <span
+                aria-label={`${unsentEmails} unsent email drafts`}
+                className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-xs font-medium text-cyan-300"
+              >
+                {unsentEmails}
+              </span>
+            )}
+          </button>
         </div>
 
         <p className="px-7 pb-3 pt-8 text-xs font-medium tracking-[0.14em] text-slate-500">
@@ -202,15 +243,16 @@ const Dashboard = ({ onLogout = () => { } }) => {
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-5 pb-4">
           {chatList.map((c) => {
-            const isActive = c.id === currentChatId;
+            const isActive = view === "chat" && c.id === currentChatId;
             return (
               <div key={c.id} className="group relative">
                 <button
-                  onClick={() => chat.handleOpenChat(c.id, chats)}
-                  className={`w-full rounded-xl border py-3.5 pl-4 pr-11 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${isActive
-                    ? "border-violet-400/40 bg-white/[0.07]"
-                    : "border-transparent hover:bg-white/[0.04]"
-                    }`}
+                  onClick={() => openChatFromAnywhere(c.id)}
+                  className={`w-full rounded-xl border py-3.5 pl-4 pr-11 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
+                    isActive
+                      ? "border-violet-400/40 bg-white/[0.07]"
+                      : "border-transparent hover:bg-white/[0.04]"
+                  }`}
                 >
                   <span className="block truncate text-[15px] font-semibold text-slate-100">
                     {c.title}
@@ -260,6 +302,23 @@ const Dashboard = ({ onLogout = () => { } }) => {
 
       {/* ---------- Main ---------- */}
       <main className="relative z-10 flex min-w-0 flex-1 flex-col">
+        {view === "emails" ? (
+          <EmailDraftsPanel
+            items={emailDrafts.items}
+            loading={emailDrafts.loading}
+            onSend={(item, { to, subject, body }) =>
+              chat.handleSendEmail({
+                chatId: item.chatId,
+                messageId: item.messageId,
+                to,
+                subject,
+                body,
+              })
+            }
+            onOpenChat={openChatFromAnywhere}
+          />
+        ) : (
+          <>
         <header className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-6 py-5 backdrop-blur-xl md:px-9">
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">
@@ -383,6 +442,8 @@ const Dashboard = ({ onLogout = () => { } }) => {
             </p>
           </div>
         </footer>
+          </>
+        )}
       </main>
     </div>
   );

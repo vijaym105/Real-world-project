@@ -7,10 +7,6 @@ const escapeHtml = (value = "") =>
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 
-/**
- * Shared layout for every transactional email (same look as the original
- * verification email: dark header, white card, button, expiry box, footer).
- */
 function layout({ title, username, paragraphs, buttonLabel, link, expiryTitle, expiryText, ignoreNote }) {
     const safeName = escapeHtml(username);
 

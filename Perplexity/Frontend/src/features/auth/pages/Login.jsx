@@ -35,7 +35,7 @@ const Login = () => {
       await handleLogin({ email, password })
       navigate('/')
     } catch {
-      // The hook stores the API error for the form to display.
+      
     }
   }
 

@@ -8,6 +8,9 @@ import { createSlice } from '@reduxjs/toolkit';
 //         loaded: boolean   // true once the messages were fetched from the server
 //     }
 // }
+//
+// emailDrafts.items = [ { messageId, chatId, chatTitle, emailDraft, createdAt } ]  (newest first)
+//   every email the AI drafted for the user, across all chats (the "Email drafts" section)
 
 const chatSlice = createSlice({
     name: 'chat',
@@ -16,6 +19,7 @@ const chatSlice = createSlice({
         currentChatId: null,
         isLoading: false,
         error: null,
+        emailDrafts: { items: [], loading: false, loaded: false },
     },
     reducers: {
         createNewChat: (state, action) => {
@@ -40,6 +44,8 @@ const chatSlice = createSlice({
         removeChat: (state, action) => {
             delete state.chats[ action.payload ]
             if (state.currentChatId === action.payload) state.currentChatId = null
+            // deleting a chat deletes its messages, and the drafts inside them
+            state.emailDrafts.items = state.emailDrafts.items.filter((d) => d.chatId !== action.payload)
         },
         addNewMessage: (state, action) => {
             const { chatId, content, role, time, id, emailDraft } = action.payload
@@ -47,12 +53,29 @@ const chatSlice = createSlice({
             if (!chat) return
             chat.messages.push({ content, role, time, id, emailDraft })
             chat.lastUpdated = new Date().toISOString()
+
+            // a brand-new draft also shows up in the "Email drafts" section straight away
+            if (emailDraft && id) {
+                state.emailDrafts.items = [
+                    { messageId: id, chatId, chatTitle: chat.title, emailDraft, createdAt: new Date().toISOString() },
+                    ...state.emailDrafts.items.filter((d) => d.messageId !== id),
+                ]
+            }
         },
         // after an AI-drafted email is sent, store its final state on the message
         updateEmailDraft: (state, action) => {
             const { chatId, messageId, emailDraft } = action.payload
             const message = state.chats[ chatId ]?.messages.find((m) => m.id === messageId)
             if (message) message.emailDraft = emailDraft
+
+            const item = state.emailDrafts.items.find((d) => d.messageId === messageId)
+            if (item) item.emailDraft = emailDraft
+        },
+        setEmailDrafts: (state, action) => {
+            state.emailDrafts = { items: action.payload, loading: false, loaded: true }
+        },
+        setEmailDraftsLoading: (state, action) => {
+            state.emailDrafts.loading = action.payload
         },
         addMessages: (state, action) => {
             const { chatId, messages } = action.payload
@@ -86,6 +109,8 @@ export const {
     removeChat,
     addNewMessage,
     updateEmailDraft,
+    setEmailDrafts,
+    setEmailDraftsLoading,
     addMessages,
 } = chatSlice.actions
 export default chatSlice.reducer

@@ -37,7 +37,7 @@ const Register = () => {
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center justify-center">
         <section className="grid w-full overflow-hidden rounded-3xl border border-white/10 bg-[#0c191d] shadow-2xl shadow-black/30 lg:grid-cols-[0.9fr_1fr]">
           <div className="hidden flex-col justify-between bg-[#10292b] p-12 lg:flex">
-            <Link to="/login" className="text-xl font-semibold tracking-tight text-cyan-300">perplexity<span className="text-white">.</span></Link>
+            <Link to="/login" className="text-6xl font-semibold tracking-tight text-cyan-300">Nexora<span className="text-white"></span></Link>
             <div className="max-w-sm">
               <p className="mb-5 text-sm font-medium uppercase tracking-[0.25em] text-cyan-300">A new perspective</p>
               <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight text-white">Curiosity starts here.</h1>

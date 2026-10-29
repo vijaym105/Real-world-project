@@ -22,6 +22,11 @@ export const getMessages = async (chatId) => {
     return response.data
 }
 
+export const getEmailDrafts = async () => {
+    const response = await api.get("/email-drafts")
+    return response.data
+}
+
 export const sendEmailDraft = async ({ messageId, to, subject, body }) => {
     const response = await api.post("/send-email", { messageId, to, subject, body })
     return response.data

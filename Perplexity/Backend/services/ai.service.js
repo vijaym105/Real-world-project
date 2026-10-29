@@ -2,11 +2,22 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { HumanMessage, SystemMessage, AIMessage, tool, createAgent } from "langchain";
 import * as z from "zod";
 import { searchInternet } from "./internet.service.js";
+import { createFallbackRunner } from "./keyFallback.service.js";
 
-const geminiModel = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-flash-lite",
-    apiKey: process.env.GOOGLE_API_KEY
-});
+const apiKeys = [
+    process.env.GOOGLE_API_KEY,
+    process.env.GOOGLE_API_KEY_2,
+    process.env.GOOGLE_API_KEY_3,
+].map((k) => k?.trim()).filter((k, i, all) => k && all.indexOf(k) === i);
+
+const hasBackupKey = apiKeys.length > 1;
+
+const makeModel = (apiKey) =>
+    new ChatGoogleGenerativeAI({
+        model: "gemini-2.5-flash-lite",
+        apiKey,
+        ...(hasBackupKey ? { maxRetries: 0 } : {}),
+    });
 
 const searchInternetTool = tool(
     searchInternet,
@@ -20,7 +31,6 @@ const searchInternetTool = tool(
 );
 
 export const EMAIL_TOOL_NAME = "prepareEmailDraft";
-
 
 export const prepareEmailDraftTool = tool(
     async () =>
@@ -39,15 +49,18 @@ export const prepareEmailDraftTool = tool(
     }
 );
 
-const agent = createAgent({
-    model: geminiModel,
-    tools: [searchInternetTool, prepareEmailDraftTool],
+export const aiSlots = (apiKeys.length ? apiKeys : [process.env.GOOGLE_API_KEY]).map((apiKey, i) => {
+    const model = makeModel(apiKey);
+    return {
+        name: i === 0 ? "GOOGLE_API_KEY" : `GOOGLE_API_KEY_${i + 1}`,
+        model,
+        agent: createAgent({ model, tools: [searchInternetTool, prepareEmailDraftTool] }),
+    };
 });
 
-/**
- * Pulls the email draft the model prepared (if any) out of the agent's messages.
- * If it called the tool more than once, the last draft wins.
- */
+const runner = createFallbackRunner(aiSlots);
+export const aiKeyStatus = runner.status;
+
 export function extractEmailDraft(agentMessages = []) {
     let draft = null;
 
@@ -93,7 +106,7 @@ ${memory}
  */
 export async function generateResponse(messages, memory = "") {
 
-    const response = await agent.invoke({
+    const input = {
         messages: [
             new SystemMessage(memory ? SYSTEM_PROMPT + memoryPrompt(memory) : SYSTEM_PROMPT),
             ...messages.map((msg) =>
@@ -102,7 +115,9 @@ export async function generateResponse(messages, memory = "") {
                     : new AIMessage(msg.content)
             )
         ]
-    });
+    };
+
+    const response = await runner.run((slot) => slot.agent.invoke(input));
 
     const text = response.messages[response.messages.length - 1].text;
     const emailDraft = extractEmailDraft(response.messages);
@@ -116,7 +131,7 @@ export async function generateResponse(messages, memory = "") {
 
 export async function AiTitle(message) {
 
-    const response = await geminiModel.invoke([
+    const response = await runner.run((slot) => slot.model.invoke([
         new SystemMessage(`
             You generate concise and descriptive titles for chat conversations.
 
@@ -133,7 +148,7 @@ export async function AiTitle(message) {
 
             "${message}"
         `)
-    ]);
+    ]));
 
     return response.text.trim();
 }

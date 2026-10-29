@@ -1,5 +1,5 @@
 import { initializeSocketConnection } from "../service/chat.socket";
-import { sendMessage, getChats, getMessages, deleteChat, sendEmailDraft } from "../service/chat.api";
+import { sendMessage, getChats, getMessages, deleteChat, sendEmailDraft, getEmailDrafts } from "../service/chat.api";
 import {
     setChats,
     setCurrentChatId,
@@ -10,6 +10,8 @@ import {
     removeChat,
     addNewMessage,
     updateEmailDraft,
+    setEmailDrafts,
+    setEmailDraftsLoading,
     addMessages,
 } from "../chat.slice";
 import { useDispatch } from "react-redux";
@@ -33,7 +35,7 @@ export const useChat = () => {
         dispatch(setError(null))
         dispatch(setLoading(true))
 
-
+        // show the user's message straight away
         if (!chatId) {
             activeChatId = TEMP_CHAT_ID
             dispatch(createNewChat({ chatId: TEMP_CHAT_ID, title: "New conversation" }))
@@ -129,7 +131,19 @@ export const useChat = () => {
         dispatch(setCurrentChatId(null))
     }
 
+    // Loads every email the AI drafted for the user (for the "Email drafts" section).
+    async function handleGetEmailDrafts() {
+        dispatch(setEmailDraftsLoading(true))
+        try {
+            const data = await getEmailDrafts()
+            dispatch(setEmailDrafts(data.drafts))
+        } catch (error) {
+            dispatch(setEmailDraftsLoading(false))
+            dispatch(setError(error.response?.data?.message || "Could not load email drafts"))
+        }
+    }
 
+    // Sends an AI-drafted email. Errors are thrown so the draft card can show them.
     async function handleSendEmail({ chatId, messageId, to, subject, body }) {
         const data = await sendEmailDraft({ messageId, to, subject, body })
         dispatch(updateEmailDraft({ chatId, messageId, emailDraft: data.emailDraft }))
@@ -142,7 +156,7 @@ export const useChat = () => {
             dispatch(removeChat(chatId))
         } catch (error) {
             dispatch(setError(error.response?.data?.message || "Could not delete chat"))
-            throw error 
+            throw error // let the Dashboard tell the user
         }
     }
 
@@ -153,6 +167,7 @@ export const useChat = () => {
         handleOpenChat,
         handleNewChat,
         handleSendEmail,
+        handleGetEmailDrafts,
         handleDeleteChat,
     }
 

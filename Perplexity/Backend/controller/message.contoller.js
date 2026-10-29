@@ -1,4 +1,5 @@
 import { generateResponse, AiTitle } from "../services/ai.service.js";
+import { AllKeysBusyError } from "../services/keyFallback.service.js";
 import { buildMemoryContext } from "../services/memory.service.js";
 import { sendEmail } from "../services/mail.service.js";
 import { userComposedEmail } from "../services/email.templates.js";
@@ -6,6 +7,8 @@ import chatModel from "../models/chat.model.js";
 import messageModel from "../models/msg.model.js";
 
 
+// ---- very small in-memory limiter for the "send email" feature ----
+// (per user, per server instance; resets when the server restarts)
 const EMAIL_LIMIT = 10;
 const EMAIL_WINDOW_MS = 60 * 60 * 1000;
 const emailSends = new Map();
@@ -60,7 +63,7 @@ export async function sendMessage(req, res) {
 
     const activeChatId = chatId || chat._id;
 
-    await messageModel.create({
+    const userMessage = await messageModel.create({
         chat: activeChatId,
         content: message,
         role: 'user'
@@ -77,7 +80,25 @@ export async function sendMessage(req, res) {
         console.error("Could not load chat memory:", err.message);
     }
 
-    const { text, emailDraft } = await generateResponse(messages, memory);
+    let text, emailDraft;
+    try {
+        ({ text, emailDraft } = await generateResponse(messages, memory));
+    } catch (err) {
+        // nothing was answered, so undo what this request saved (the user can simply resend)
+        await messageModel.deleteOne({ _id: userMessage._id }).catch(() => {});
+        if (chat) await chatModel.deleteOne({ _id: chat._id }).catch(() => {});
+
+        console.error("AI request failed:", err.message);
+
+        if (err instanceof AllKeysBusyError) {
+            return res.status(503).json({
+                message: "Nexora is busy right now. Please try again in a minute."
+            })
+        }
+        return res.status(502).json({
+            message: "Nexora couldn't answer that. Please try again."
+        })
+    }
 
     const Aimsg = await messageModel.create({
         chat: activeChatId,
@@ -167,6 +188,40 @@ export async function sendEmailDraft(req, res) {
         message: `Email sent to ${to}`,
         success: true,
         emailDraft: aiMessage.emailDraft
+    })
+}
+
+/**
+ * @route GET api/chats/email-drafts
+ * Every email the AI drafted for this user (unsent and sent), newest first,
+ * across all of their chats. Powers the "Email drafts" section.
+ */
+export async function listEmailDrafts(req, res) {
+    const chats = await chatModel.find({ user: req.user.id }).select("_id title").lean();
+
+    if (!chats.length) {
+        return res.status(200).json({ message: "Email drafts retrieved successfully", drafts: [] });
+    }
+
+    const titleById = new Map(chats.map((c) => [String(c._id), c.title]));
+
+    const messages = await messageModel
+        .find({ chat: { $in: chats.map((c) => c._id) }, emailDraft: { $exists: true } })
+        .sort({ createdAt: -1 })
+        .limit(100)
+        .lean();
+
+    const drafts = messages.map((m) => ({
+        messageId: m._id,
+        chatId: m.chat,
+        chatTitle: titleById.get(String(m.chat)) ?? "Untitled",
+        emailDraft: m.emailDraft,
+        createdAt: m.createdAt,
+    }));
+
+    res.status(200).json({
+        message: "Email drafts retrieved successfully",
+        drafts
     })
 }
 

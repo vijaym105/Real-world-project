@@ -10,8 +10,6 @@ const RESET_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
-// Cross-site cookies (frontend and backend on different domains) need
-// SameSite=None + Secure, which browsers only allow over HTTPS.
 const authCookieOptions = () => {
     const isProd = process.env.NODE_ENV === 'production';
     return {
