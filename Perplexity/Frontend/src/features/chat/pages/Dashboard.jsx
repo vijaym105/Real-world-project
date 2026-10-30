@@ -5,6 +5,8 @@ import remarkGfm from "remark-gfm";
 import { useChat, TEMP_CHAT_ID } from "../hooks/useChat";
 import EmailDraftCard from "../components/EmailDraftCard";
 import EmailDraftsPanel from "../components/EmailDraftsPanel";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 const Icon = ({ children, className = "h-5 w-5" }) => (
   <svg
@@ -20,6 +22,8 @@ const Icon = ({ children, className = "h-5 w-5" }) => (
     {children}
   </svg>
 );
+
+
 
 const LayersIcon = (p) => (
   <Icon {...p}>
@@ -92,7 +96,7 @@ function MessageBody({ text }) {
 }
 
 /* ---------- Dashboard ---------- */
-const Dashboard = ({ onLogout = () => {} }) => {
+const Dashboard = ({ onLogout = () => { } }) => {
   const chat = useChat();
   const authUser = useSelector((state) => state.auth.user);
 
@@ -117,7 +121,6 @@ const Dashboard = ({ onLogout = () => {} }) => {
     chat.initializeSocketConnection();
     chat.handleGetChats();
     chat.handleGetEmailDrafts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [draft, setDraft] = useState("");
@@ -182,6 +185,21 @@ const Dashboard = ({ onLogout = () => {} }) => {
       send();
     }
   };
+  const navigate = useNavigate();
+  const { handleLogout } = useAuth();
+
+  const onLogUser = async () => {
+    try {
+      await handleLogout();
+    } catch (err) {
+      console.error(
+        "Logout failed:",
+        err.response?.data?.message || err.message
+      );
+    } finally {
+      navigate("/login", { replace: true });
+    }
+  };
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-[#06040f] font-sans text-slate-100 antialiased">
@@ -218,11 +236,10 @@ const Dashboard = ({ onLogout = () => {} }) => {
             type="button"
             onClick={() => setView("emails")}
             aria-current={view === "emails" ? "page" : undefined}
-            className={`mt-2 flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
-              view === "emails"
-                ? "border-violet-400/40 bg-white/[0.07] text-white"
-                : "border-white/10 bg-white/[0.03] text-slate-200 hover:border-cyan-400/30 hover:bg-cyan-400/[0.06]"
-            }`}
+            className={`mt-2 flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${view === "emails"
+              ? "border-violet-400/40 bg-white/[0.07] text-white"
+              : "border-white/10 bg-white/[0.03] text-slate-200 hover:border-cyan-400/30 hover:bg-cyan-400/[0.06]"
+              }`}
           >
             <MailIcon className="h-5 w-5 text-cyan-300" />
             <span className="flex-1">Email drafts</span>
@@ -248,11 +265,10 @@ const Dashboard = ({ onLogout = () => {} }) => {
               <div key={c.id} className="group relative">
                 <button
                   onClick={() => openChatFromAnywhere(c.id)}
-                  className={`w-full rounded-xl border py-3.5 pl-4 pr-11 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
-                    isActive
-                      ? "border-violet-400/40 bg-white/[0.07]"
-                      : "border-transparent hover:bg-white/[0.04]"
-                  }`}
+                  className={`w-full rounded-xl border py-3.5 pl-4 pr-11 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${isActive
+                    ? "border-violet-400/40 bg-white/[0.07]"
+                    : "border-transparent hover:bg-white/[0.04]"
+                    }`}
                 >
                   <span className="block truncate text-[15px] font-semibold text-slate-100">
                     {c.title}
@@ -290,7 +306,8 @@ const Dashboard = ({ onLogout = () => {} }) => {
               <p className="truncate text-sm text-slate-400">{user.email}</p>
             </div>
             <button
-              onClick={onLogout}
+              onClick={onLogUser}
+
               aria-label="Log out"
               className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
             >
@@ -319,129 +336,129 @@ const Dashboard = ({ onLogout = () => {} }) => {
           />
         ) : (
           <>
-        <header className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-6 py-5 backdrop-blur-xl md:px-9">
-          <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold">
-              {active?.title ?? "New conversation"}
-            </h1>
-            <p className="mt-1 text-sm text-slate-400">
-              {activeMessages.length} message
-              {activeMessages.length === 1 ? "" : "s"}
-            </p>
-          </div>
-          <span className="flex shrink-0 items-center gap-2 rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
-            Nexora Pro
-          </span>
-        </header>
-
-        {/* messages */}
-        <section className="flex-1 overflow-y-auto px-6 py-8 md:px-9">
-          <div className="mx-auto flex max-w-5xl flex-col gap-8">
-            {activeMessages.length === 0 && (
-              <div className="mt-24 text-center text-slate-400">
-                <p className="text-lg font-medium text-slate-200">
-                  Start the conversation
-                </p>
-                <p className="mt-1 text-sm">
-                  Ask Nexora anything about your project.
+            <header className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-6 py-5 backdrop-blur-xl md:px-9">
+              <div className="min-w-0">
+                <h1 className="truncate text-lg font-semibold">
+                  {active?.title ?? "New conversation"}
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">
+                  {activeMessages.length} message
+                  {activeMessages.length === 1 ? "" : "s"}
                 </p>
               </div>
-            )}
+              <span className="flex shrink-0 items-center gap-2 rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
+                Nexora Pro
+              </span>
+            </header>
 
-            {activeMessages.map((m, i) =>
-              m.role === "user" ? (
-                <div key={i} className="flex flex-col items-end gap-2">
-                  <div className="flex items-start gap-4">
-                    <div className="max-w-2xl rounded-2xl rounded-tr-md border border-violet-400/20 bg-gradient-to-br from-violet-600/30 to-indigo-600/20 px-5 py-4 text-[17px] shadow-lg shadow-black/20">
-                      {m.content}
-                    </div>
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 font-semibold">
-                      {user.initial}
-                    </div>
+            {/* messages */}
+            <section className="flex-1 overflow-y-auto px-6 py-8 md:px-9">
+              <div className="mx-auto flex max-w-5xl flex-col gap-8">
+                {activeMessages.length === 0 && (
+                  <div className="mt-24 text-center text-slate-400">
+                    <p className="text-lg font-medium text-slate-200">
+                      Start the conversation
+                    </p>
+                    <p className="mt-1 text-sm">
+                      Ask Nexora anything about your project.
+                    </p>
                   </div>
-                  <span className="mr-14 text-xs text-slate-400">{m.time}</span>
-                </div>
-              ) : (
-                <div key={i} className="flex items-start gap-4">
-                  <div className="relative shrink-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 text-white">
+                )}
+
+                {activeMessages.map((m, i) =>
+                  m.role === "user" ? (
+                    <div key={i} className="flex flex-col items-end gap-2">
+                      <div className="flex items-start gap-4">
+                        <div className="max-w-2xl rounded-2xl rounded-tr-md border border-violet-400/20 bg-gradient-to-br from-violet-600/30 to-indigo-600/20 px-5 py-4 text-[17px] shadow-lg shadow-black/20">
+                          {m.content}
+                        </div>
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 font-semibold">
+                          {user.initial}
+                        </div>
+                      </div>
+                      <span className="mr-14 text-xs text-slate-400">{m.time}</span>
+                    </div>
+                  ) : (
+                    <div key={i} className="flex items-start gap-4">
+                      <div className="relative shrink-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 text-white">
+                          <LayersIcon className="h-5 w-5" />
+                        </div>
+                        <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#0b0818] bg-emerald-400" />
+                      </div>
+                      <div className="flex max-w-[46rem] flex-col gap-2">
+                        <div className="rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.05] px-5 py-4 text-[17px] leading-relaxed text-slate-200 shadow-lg shadow-black/20 backdrop-blur-md">
+                          <MessageBody text={m.content} />
+                        </div>
+                        {m.emailDraft && m.id && (
+                          <EmailDraftCard
+                            key={`${m.id}-${m.emailDraft.status}`}
+                            draft={m.emailDraft}
+                            onSend={({ to, subject, body }) =>
+                              chat.handleSendEmail({
+                                chatId: currentChatId,
+                                messageId: m.id,
+                                to,
+                                subject,
+                                body,
+                              })
+                            }
+                          />
+                        )}
+                        <span className="text-xs text-sky-300/80">{m.time}</span>
+                      </div>
+                    </div>
+                  )
+                )}
+
+                {typing && (
+                  <div className="flex items-center gap-4" aria-live="polite">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-violet-500">
                       <LayersIcon className="h-5 w-5" />
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#0b0818] bg-emerald-400" />
-                  </div>
-                  <div className="flex max-w-[46rem] flex-col gap-2">
-                    <div className="rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.05] px-5 py-4 text-[17px] leading-relaxed text-slate-200 shadow-lg shadow-black/20 backdrop-blur-md">
-                      <MessageBody text={m.content} />
+                    <div className="flex gap-1.5 rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-4">
+                      {[0, 150, 300].map((d) => (
+                        <span
+                          key={d}
+                          style={{ animationDelay: `${d}ms` }}
+                          className="h-2 w-2 animate-bounce rounded-full bg-slate-400"
+                        />
+                      ))}
                     </div>
-                    {m.emailDraft && m.id && (
-                      <EmailDraftCard
-                        key={`${m.id}-${m.emailDraft.status}`}
-                        draft={m.emailDraft}
-                        onSend={({ to, subject, body }) =>
-                          chat.handleSendEmail({
-                            chatId: currentChatId,
-                            messageId: m.id,
-                            to,
-                            subject,
-                            body,
-                          })
-                        }
-                      />
-                    )}
-                    <span className="text-xs text-sky-300/80">{m.time}</span>
                   </div>
-                </div>
-              )
-            )}
-
-            {typing && (
-              <div className="flex items-center gap-4" aria-live="polite">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-violet-500">
-                  <LayersIcon className="h-5 w-5" />
-                </div>
-                <div className="flex gap-1.5 rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-4">
-                  {[0, 150, 300].map((d) => (
-                    <span
-                      key={d}
-                      style={{ animationDelay: `${d}ms` }}
-                      className="h-2 w-2 animate-bounce rounded-full bg-slate-400"
-                    />
-                  ))}
-                </div>
+                )}
+                <div ref={endRef} />
               </div>
-            )}
-            <div ref={endRef} />
-          </div>
-        </section>
+            </section>
 
-        {/* composer */}
-        <footer className="px-6 pb-6 md:px-9">
-          <div className="mx-auto max-w-5xl rounded-2xl border border-white/10 bg-white/[0.04] px-5 pb-3 pt-4 backdrop-blur-xl transition focus-within:border-violet-400/50">
-            <div className="flex items-end gap-3">
-              <textarea
-                ref={taRef}
-                rows={1}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={onKeyDown}
-                placeholder="Message Nexora... (Enter to send)"
-                className="max-h-40 flex-1 resize-none bg-transparent py-1 text-[17px] text-slate-100 placeholder-slate-500 outline-none"
-              />
-              <button
-                onClick={send}
-                disabled={!draft.trim() || typing}
-                aria-label="Send message"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-slate-300 transition enabled:hover:bg-violet-500 enabled:hover:text-white disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
-              >
-                <SendIcon className="h-5 w-5" />
-              </button>
-            </div>
-            <p className="mt-2 text-center text-xs text-slate-500">
-              Nexora may make mistakes. Verify important information.
-            </p>
-          </div>
-        </footer>
+            {/* composer */}
+            <footer className="px-6 pb-6 md:px-9">
+              <div className="mx-auto max-w-5xl rounded-2xl border border-white/10 bg-white/[0.04] px-5 pb-3 pt-4 backdrop-blur-xl transition focus-within:border-violet-400/50">
+                <div className="flex items-end gap-3">
+                  <textarea
+                    ref={taRef}
+                    rows={1}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    placeholder="Message Nexora... (Enter to send)"
+                    className="max-h-40 flex-1 resize-none bg-transparent py-1 text-[17px] text-slate-100 placeholder-slate-500 outline-none"
+                  />
+                  <button
+                    onClick={send}
+                    disabled={!draft.trim() || typing}
+                    aria-label="Send message"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-slate-300 transition enabled:hover:bg-violet-500 enabled:hover:text-white disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                  >
+                    <SendIcon className="h-5 w-5" />
+                  </button>
+                </div>
+                <p className="mt-2 text-center text-xs text-slate-500">
+                  Nexora may make mistakes. Verify important information.
+                </p>
+              </div>
+            </footer>
           </>
         )}
       </main>

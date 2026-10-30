@@ -2,6 +2,7 @@ import { useDispatch } from "react-redux";
 import {
     register,
     login,
+    logout,
     getMe,
     verifyEmail,
     resendVerification,
@@ -50,6 +51,20 @@ export function useAuth() {
         }
     }
 
+    async function handleLogout() {
+        try {
+            dispatch(setLoading(true));
+            dispatch(setError(null));
+            await logout();
+            dispatch(setUser(null));
+        } catch (error) {
+            dispatch(setError(error.response?.data?.message || "Logout Failed"));
+            throw error;
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }
+
     async function handleGetMe() {
         try {
             dispatch(setLoading(true))
@@ -75,6 +90,7 @@ export function useAuth() {
     return {
         handleRegister,
         handleLogin,
+        handleLogout,
         handleGetMe,
         handleVerifyEmail,
         handleResendVerification,

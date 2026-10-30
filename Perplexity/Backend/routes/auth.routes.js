@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import { register, verifyEmail, login, getMe, resendVerification, forgotPassword, resetPassword } from '../controller/auth.controller.js';
+import { register, verifyEmail, login, logout, getMe, resendVerification, forgotPassword, resetPassword } from '../controller/auth.controller.js';
 import { validateRegister, validateLogin, validateVerifyEmail, validateEmailOnly, validateResetPassword } from '../validator/validate.js';
 import { userAuth } from '../middleware/auth.middleware.js';
 const authRouter = Router();
@@ -17,6 +17,13 @@ authRouter.post('/register', validateRegister,register);
  * @access Public
  */
 authRouter.post('/login', validateLogin ,login);
+
+/**
+ * @route POST api/auth/logout
+ * @desc Log out the current user by clearing the auth cookie
+ * @access Private
+ */
+authRouter.post('/logout', logout);
 
 
 /** @route POST api/auth/verify-email
