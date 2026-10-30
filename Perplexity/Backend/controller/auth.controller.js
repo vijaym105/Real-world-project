@@ -37,39 +37,71 @@ async function sendVerificationEmail(user) {
 }
 
 
+
 export const register = async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
 
-    const { username, email, password } = req.body
+        const isUserExists = await userModel.findOne({
+            $or: [{ username }, { email }]
+        });
 
-    const isUserExists = await userModel.findOne({
-        $or: [{ username }, { email }]
-    })
-
-    if (isUserExists) {
-        return res.status(400).json({
-            message: `Username or email already exists`,
-            success: false
-        })
-    }
-
-    const user = await userModel.create({
-        username,
-        email,
-        password
-    })
-
-    await sendVerificationEmail(user);
-
-    res.status(201).json({
-        message: 'User created successfully',
-        success: true,
-        user: {
-            id: user._id,
-            username: user.username,
-            email: user.email
+        if (isUserExists) {
+            return res.status(400).json({
+                message: "Username or email already exists",
+                success: false
+            });
         }
-    })
-}
+
+        const user = await userModel.create({
+            username,
+            email,
+            password
+        });
+
+        let emailSent = false;
+
+        try {
+            await sendVerificationEmail(user);
+            emailSent = true;
+        } catch (emailError) {
+            console.error(
+                "Verification email failed:",
+                emailError.message
+            );
+        }
+
+        return res.status(201).json({
+            message: emailSent
+                ? "Account created. Verification email sent."
+                : "Account created, but verification email could not be sent. Please request a new verification email.",
+            success: true,
+            emailSent,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        console.error("Registration error:", error);
+
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "Username or email already exists",
+                success: false
+            });
+        }
+
+        return res.status(500).json({
+            message: "Registration failed. Please try again.",
+            success: false
+        });
+    }
+};
+
+
 
 export const login = async (req, res) => {
     const { email, password } = req.body

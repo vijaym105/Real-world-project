@@ -8,7 +8,6 @@ import { getFrontendUrl } from '../config/urls.js'
 
 const app = express()
 
-// when deployed behind a proxy (Render, Railway, Heroku...) so secure cookies work
 app.set('trust proxy', 1)
 
 app.use(express.json());
